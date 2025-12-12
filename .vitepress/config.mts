@@ -6,7 +6,7 @@ export default defineConfig({
   lang: 'zh-CN',
 
   head: [
-    ['link', { rel: 'icon', href: '/logo.svg' }],
+    ['link', { rel: 'icon', href: '/logo-in-dark.svg' }],
     ['meta', { name: 'theme-color', content: '#646cff' }]
   ],
 
