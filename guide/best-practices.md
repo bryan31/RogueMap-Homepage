@@ -478,5 +478,5 @@ public void destroy() {
 
 ## 下一步
 
-- [性能白皮书](../performance/) - 性能数据与分析
+- [性能白皮书](../performance/benchmark) - 性能数据与分析
 - [配置选项](./configuration.md) - 配置说明

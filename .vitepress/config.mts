@@ -19,7 +19,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '指南', link: '/guide/introduction' },
-      { text: '性能白皮书', link: '/performance/' },
+      { text: '性能白皮书', link: '/performance/benchmark' },
       {
         text: '链接',
         items: [
