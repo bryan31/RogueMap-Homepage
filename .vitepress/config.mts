@@ -19,7 +19,7 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '指南', link: '/guide/introduction' },
-      { text: '性能', link: '/performance/benchmark' },
+      { text: '性能白皮书', link: '/performance/' },
       {
         text: '链接',
         items: [
@@ -75,9 +75,7 @@ export default defineConfig({
         {
           text: '性能',
           items: [
-            { text: '性能测试', link: '/performance/benchmark' },
-            { text: '对比分析', link: '/performance/comparison' },
-            { text: '性能优化', link: '/performance/optimization' }
+            { text: '性能白皮书', link: '/performance/' }
           ]
         }
       ]

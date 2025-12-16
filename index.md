@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "RogueMap"
   text: "高性能键值存储引擎"
-  tagline: "堆外存储，零 GC 压力，读写性能提升数倍"
+  tagline: "突破内存限制，提供持久化能力，并保持百万级吞吐的性能"
   image:
     light: /logo-in-light.svg
     dark: /logo-in-dark.svg
@@ -18,13 +18,13 @@ hero:
       text: 查看 GitHub
       link: https://github.com/bryan31/RogueMap
     - theme: alt
-      text: 性能测试
-      link: /performance/benchmark
+      text: 性能白皮书
+      link: /performance/
 
 features:
   - icon: 🚀
-    title: 极致性能
-    details: Mmap 持久化模式读取比 HashMap 快 2.4 倍。基于堆外内存和内存映射文件，零拷贝序列化，性能极致优化。
+    title: 高效写入
+    details: 写入性能超越 HashMap 近 2 倍。基于堆外内存和内存映射文件，只写索引不写数据，写入速度显著提升。
 
   - icon: 💾
     title: 灵活存储
@@ -67,7 +67,7 @@ features:
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.0-BETA1</version>
+    <version>1.0.0-BETA2</version>
 </dependency>
 ```
 
@@ -93,22 +93,21 @@ try (RogueMap<Long, User> map = RogueMap.<Long, User>offHeap()
 
 ## 性能表现
 
-在 MacBook Pro (M3, 18GB) 上测试 100 万条数据，数据为拥有10个属性的PO值对象
+在 Linux 2C4G 服务器上测试 100 万条数据，对象包含 10 个属性的 PO 值对象
 
 ### RogueMap 多模式对比
 
 | 模式 | 写入 | 读取 | 写吞吐量 | 读吞吐量 | 堆内存占用 |
 |------|------|------|----------|----------|-----------|
-| JDK HashMap/ConcurrentHashMap | 611ms | 463ms | 1,636,661 ops/s | 2,159,827 ops/s | 304.04 MB |
-| OffHeap模式 | 658ms | 251ms | 1,519,756 ops/s | 3,984,063 ops/s | 40.46 MB |
-| Mmap临时文件 | 629ms | 212ms | 1,589,825 ops/s | 4,716,981 ops/s | 40.13 MB |
-| **Mmap持久化** | **547ms** | **195ms** | **1,828,153 ops/s** | **5,128,205 ops/s** | **40.01 MB** |
+| **RogueMap OffHeap** | **1899ms** | **1033ms** | **526,592 ops/s** | **968,054 ops/s** | **40.18 MB** |
+| **RogueMap Mmap 持久化** | **1254ms** | **566ms** | **797,448 ops/s** | **1,766,784 ops/s** | **40.00 MB** |
+| **RogueMap Mmap 临时文件** | **1377ms** | **656ms** | **726,216 ops/s** | **1,524,390 ops/s** | **40.03 MB** |
 
 **核心优势：**
-- 🚀 **Mmap 持久化**最快：读取 195ms，写入 547ms
-- 📊 **堆内存占用减少 87%**：从 304 MB 降至 40 MB
-- ⚡ **读取速度提升 2.4 倍**：比 HashMap 模式快 2.4 倍
-- 💿 **支持数据持久化**：进程重启数据不丢失
+- 💾 **堆内存占用减少 87%**：从 304 MB 降至 40 MB，大幅降低 GC 压力
+- 🚀 **写入性能提升显著**：Mmap 持久化模式比 HashMap 快 1.95 倍
+- ⚡ **百万级读取吞吐**：在 2C4G 机器上达到 176 万 ops/s，满足绝大多数业务场景
+- 💿 **支持数据持久化**：进程重启数据不丢失，HashMap 做不到
 
 ## 适用场景
 
@@ -128,7 +127,7 @@ try (RogueMap<Long, User> map = RogueMap.<Long, User>offHeap()
 | ❌ 大数据量导致频繁 Full GC | ✅ 堆外内存，GC 压力降低 87% |
 | ❌ 重启数据全部丢失 | ✅ Mmap 持久化模式，数据永久保存 |
 | ❌ 内存占用巨大（304 MB） | ✅ 堆内存占用仅 40 MB |
-| ❌ 读取性能受限 | ✅ 读取性能提升 2.4 倍 |
+| ❌ 写入性能瓶颈 | ✅ 写入性能提升 1.95 倍（只写索引，不写数据） |
 | ❌ 只能存储在堆内 | ✅ 三种存储模式灵活切换 |
 
 **简单易用的 API：**

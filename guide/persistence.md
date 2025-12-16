@@ -391,4 +391,4 @@ if (freeSpace < allocateSize) {
 
 - [配置选项](./configuration.md) - 详细配置说明
 - [最佳实践](./best-practices.md) - 使用建议
-- [性能测试](../performance/benchmark.md) - 性能数据
+- [性能白皮书](../performance/) - 性能数据与分析

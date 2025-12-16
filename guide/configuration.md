@@ -397,5 +397,5 @@ if (freeSpace < allocateSize) {
 ## 下一步
 
 - [最佳实践](./best-practices.md) - 使用建议
-- [性能测试](../performance/benchmark.md) - 性能数据
+- [性能白皮书](../performance/) - 性能数据与分析
 - [内存管理](./memory-management.md) - 内存管理详解
