@@ -20,7 +20,8 @@ BasicIndex 基于 `ConcurrentHashMap` 实现，提供简单可靠的索引功能
 ### 使用方式
 
 ```java
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .basicIndex()
@@ -50,13 +51,15 @@ SegmentedHashIndex 是 RogueMap 的**默认索引**，采用 64 个独立段 + S
 
 ```java
 // 默认使用分段索引
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // 或显式指定分段数
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .segmentedIndex(64) // 64 个段
@@ -111,7 +114,8 @@ LongPrimitiveIndex 专为 Long 键优化，使用原始数组存储，大幅降�
 ### 使用方式
 
 ```java
-RogueMap<Long, Long> map = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> map = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .primitiveIndex()
@@ -181,7 +185,8 @@ IntPrimitiveIndex 专为 Integer 键优化，与 LongPrimitiveIndex 类似。
 ### 使用方式
 
 ```java
-RogueMap<Integer, Integer> map = RogueMap.<Integer, Integer>offHeap()
+RogueMap<Integer, Integer> map = RogueMap.<Integer, Integer>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.INTEGER)
     .valueCodec(PrimitiveCodecs.INTEGER)
     .primitiveIndex()
@@ -231,7 +236,8 @@ RogueMap<Integer, Integer> map = RogueMap.<Integer, Integer>offHeap()
 
 ```java
 // 推荐：SegmentedHashIndex（默认）
-RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
+RogueMap<String, User> cache = RogueMap.<String, User>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .segmentedIndex(64)
@@ -242,7 +248,8 @@ RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
 
 ```java
 // 推荐：LongPrimitiveIndex
-RogueMap<Long, Long> idMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> idMap = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .primitiveIndex()
@@ -253,7 +260,8 @@ RogueMap<Long, Long> idMap = RogueMap.<Long, Long>offHeap()
 
 ```java
 // 推荐：BasicIndex
-RogueMap<String, String> config = RogueMap.<String, String>offHeap()
+RogueMap<String, String> config = RogueMap.<String, String>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
     .basicIndex()

@@ -7,7 +7,7 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', href: '/logo-in-dark.svg' }],
-    ['meta', { name: 'theme-color', content: '#646cff' }]
+    ['meta', { name: 'theme-color', content: '#0f766e' }]
   ],
 
   themeConfig: {
@@ -35,9 +35,20 @@ export default defineConfig({
         {
           text: '开始',
           items: [
+            { text: '上手路线（10 分钟）', link: '/guide/quick-start-path' },
+            { text: '功能矩阵', link: '/guide/feature-matrix' },
             { text: '介绍', link: '/guide/introduction' },
             { text: '快速开始', link: '/guide/getting-started' },
             { text: '为什么选择 RogueMap', link: '/guide/why-roguemap' }
+          ]
+        },
+        {
+          text: '数据结构',
+          items: [
+            { text: 'RogueMap', link: '/guide/getting-started' },
+            { text: 'RogueList', link: '/guide/roguelist' },
+            { text: 'RogueSet', link: '/guide/rogueset' },
+            { text: 'RogueQueue', link: '/guide/roguequeue' }
           ]
         },
         {
@@ -53,21 +64,12 @@ export default defineConfig({
           text: '高级用法',
           items: [
             { text: '并发控制', link: '/guide/concurrency' },
+            { text: '事务', link: '/guide/transaction' },
             { text: '持久化', link: '/guide/persistence' },
+            { text: '运维指南', link: '/guide/operations' },
             { text: '配置选项', link: '/guide/configuration' },
-            { text: '最佳实践', link: '/guide/best-practices' }
-          ]
-        }
-      ],
-      '/api/': [
-        {
-          text: 'API 文档',
-          items: [
-            { text: 'RogueMap', link: '/api/roguemap' },
-            { text: 'Builder API', link: '/api/builder' },
-            { text: 'Codecs', link: '/api/codecs' },
-            { text: 'Index', link: '/api/index' },
-            { text: 'Storage', link: '/api/storage' }
+            { text: '最佳实践', link: '/guide/best-practices' },
+            { text: '常见问题与排障', link: '/guide/troubleshooting' }
           ]
         }
       ],
@@ -75,7 +77,7 @@ export default defineConfig({
         {
           text: '性能',
           items: [
-            { text: '性能白皮书', link: '/performance/' }
+            { text: '性能白皮书', link: '/performance/benchmark' }
           ]
         }
       ]

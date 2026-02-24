@@ -1,104 +1,12 @@
 # 内存管理
 
-RogueMap 提供了两种内存分配器，分别用于堆外内存和内存映射文件存储。
-
-## SlabAllocator（堆外内存）
-
-### 概述
-
-SlabAllocator 是 OffHeap 模式的内存分配器，采用 Slab 分配策略减少内存碎片。
-
-### Slab 分配策略
-
-```
-内存布局：
-┌─────────────────────────────────────┐
-│         SlabAllocator               │
-├─────────────────────────────────────┤
-│ Size Class 1: 16 字节               │
-│ ├─ Block 1 (1MB)                    │
-│ ├─ Block 2 (1MB)                    │
-│ └─ ...                              │
-├─────────────────────────────────────┤
-│ Size Class 2: 64 字节               │
-│ ├─ Block 1 (1MB)                    │
-│ └─ ...                              │
-├─────────────────────────────────────┤
-│ Size Class 3: 256 字节              │
-├─────────────────────────────────────┤
-│ Size Class 4: 1 KB                  │
-├─────────────────────────────────────┤
-│ Size Class 5: 4 KB                  │
-├─────────────────────────────────────┤
-│ Size Class 6: 16 KB                 │
-├─────────────────────────────────────┤
-│ Size Class 7: Large (>16 KB)        │
-└─────────────────────────────────────┘
-```
-
-### Size Class（大小类别）
-
-SlabAllocator 将内存分为 7 个大小类别：
-
-| Size Class | 大小 | 适用场景 |
-|-----------|------|---------|
-| 1 | 16 字节 | 极小对象 |
-| 2 | 64 字节 | 小对象 |
-| 3 | 256 字节 | 中小对象 |
-| 4 | 1 KB | 中等对象 |
-| 5 | 4 KB | 中大对象 |
-| 6 | 16 KB | 大对象 |
-| 7 | > 16 KB | 超大对象 |
-
-### 分配流程
-
-```
-请求分配 100 字节
-    ↓
-选择 Size Class 3 (256 字节)
-    ↓
-查找 Size Class 3 的空闲列表
-    ↓
-有空闲？
-├─ 是 → 从空闲列表取出 → 返回地址
-└─ 否 → 分配新块 (1MB) → 返回地址
-```
-
-### 内存回收
-
-```java
-// 释放内存时，加入空闲列表重用
-allocator.free(address, size);
-    ↓
-确定 Size Class
-    ↓
-加入该 Size Class 的空闲列表
-    ↓
-下次分配时优先使用
-```
-
-### 优势
-
-- ✅ **减少碎片** - 固定大小块分配
-- ✅ **快速分配** - O(1) 时间复杂度
-- ✅ **内存重用** - 空闲列表重用
-- ✅ **负载因子自适应** - 自动扩容
-
-### 配置示例
-
-```java
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(PrimitiveCodecs.LONG)
-    .maxMemory(1024 * 1024 * 1024) // 1GB 最大内存
-    .build();
-```
+RogueMap 使用内存映射文件进行数据存储，本文档介绍内存管理的相关内容。
 
 ## MmapAllocator（内存映射文件）
 
 ### 概述
 
-MmapAllocator 是 Mmap 模式的内存分配器，使用 `MappedByteBuffer` 将文件映射到内存。
+MmapAllocator 是 RogueMap 的内存分配器，使用 `MappedByteBuffer` 将文件映射到内存。
 
 ### 内存映射机制
 
@@ -194,9 +102,6 @@ UnsafeOps 封装了 `sun.misc.Unsafe` API，提供底层内存操作。
 ### 主要操作
 
 ```java
-// 分配内存
-long address = UnsafeOps.allocate(1024);
-
 // 写入数据
 UnsafeOps.putLong(address, 100L);
 UnsafeOps.putInt(address + 8, 42);
@@ -208,11 +113,7 @@ int value2 = UnsafeOps.getInt(address + 8);
 byte value3 = UnsafeOps.getByte(address + 12);
 
 // 批量操作
-byte[] data = new byte[100];
-UnsafeOps.copyMemory(data, 0, address, 100);
-
-// 释放内存
-UnsafeOps.free(address);
+UnsafeOps.copyMemory(srcAddress, destAddress, 100);
 ```
 
 ### 性能优势
@@ -242,11 +143,11 @@ HashMap:
 └─ 字符串数据: ~200 MB
 总计: ~311 MB（堆内存，实测值）
 
-RogueMap OffHeap:
+RogueMap Mmap:
 ├─ 索引（堆内存）: ~30 MB
-├─ 数据（堆外内存）: ~18 MB
-└─ 总堆内存: ~48 MB（实测值）
-内存节省: 84.7%（基于实测值 311.31 MB → 47.81 MB）
+└─ 数据（文件映射）: ~18 MB
+总堆内存: ~48 MB（实测值）
+内存节省: 84.7%
 ```
 
 ### 原始索引 vs 对象索引
@@ -256,31 +157,19 @@ RogueMap OffHeap:
 ```
 SegmentedHashIndex:
 ├─ HashMap 索引: ~28 MB
-└─ 数据（堆外）: ~20 MB
+└─ 数据（文件映射）: ~20 MB
 总堆内存: ~48 MB
 
 LongPrimitiveIndex:
 ├─ long[] keys: 8 MB
 ├─ long[] addresses: 8 MB
 ├─ int[] sizes: 4 MB
-└─ 数据（堆外）: ~20 MB
+└─ 数据（文件映射）: ~20 MB
 总堆内存: ~20 MB
-内存节省: 约 58%（48 MB → 20 MB）
+内存节省: 约 58%
 ```
 
 ## 内存配置建议
-
-### OffHeap 模式
-
-```bash
-# 设置最大直接内存
-java -XX:MaxDirectMemorySize=4g -jar your-app.jar
-
-# 示例：4GB 应用
-# JVM 堆内存: 2GB
-# 直接内存: 2GB
-java -Xmx2g -XX:MaxDirectMemorySize=2g -jar your-app.jar
-```
 
 ### Mmap 模式
 
@@ -291,6 +180,7 @@ long estimatedSize = recordCount * averageRecordSize * 1.5;
 RogueMap<K, V> map = RogueMap.<K, V>mmap()
     .persistent("data.db")
     .allocateSize(estimatedSize)
+    .autoExpand(true)  // 或开启自动扩容
     .build();
 ```
 
@@ -300,19 +190,21 @@ RogueMap<K, V> map = RogueMap.<K, V>mmap()
 
 ```java
 // 推荐 ✅
-try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+        .temporary()
         .keyCodec(StringCodec.INSTANCE)
         .valueCodec(PrimitiveCodecs.LONG)
         .build()) {
     // 使用 map
-} // 自动调用 close()，释放内存
+} // 自动调用 close()，释放资源
 
 // 避免 ❌
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
-// 忘记调用 close() 会导致内存泄漏
+// 忘记调用 close() 会导致资源泄漏
 ```
 
 ### 2. 显式关闭
@@ -320,7 +212,8 @@ RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
 ```java
 RogueMap<String, Long> map = null;
 try {
-    map = RogueMap.<String, Long>offHeap()
+    map = RogueMap.<String, Long>mmap()
+        .temporary()
         .keyCodec(StringCodec.INSTANCE)
         .valueCodec(PrimitiveCodecs.LONG)
         .build();
@@ -337,7 +230,8 @@ try {
 ### 内存使用情况
 
 ```java
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();

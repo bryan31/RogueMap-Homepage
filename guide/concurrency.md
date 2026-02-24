@@ -7,7 +7,7 @@ RogueMap 是线程安全的，支持高并发读写操作。本文档介绍 Rogu
 RogueMap 的所有操作都是线程安全的：
 
 ```java
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
@@ -149,7 +149,7 @@ try {
 
 ```java
 // 推荐：高并发 Web 应用
-RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
+RogueMap<String, User> cache = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .segmentedIndex(64)  // 默认，高并发优化
@@ -160,7 +160,7 @@ RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
 
 ```java
 // 适合：读多写少的 ID 映射
-RogueMap<Long, Long> idMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> idMap = RogueMap.<Long, Long>mmap().temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .primitiveIndex()  // 节省内存，读多写少
@@ -215,8 +215,7 @@ if (!map.containsKey("key")) {
 }
 // 两个线程可能同时通过 containsKey 检查
 
-// 解决方案：使用 putIfAbsent（如果实现）
-// 或使用外部同步
+// 解决方案：使用外部同步
 synchronized (lock) {
     if (!map.containsKey("key")) {
         map.put("key", 100L);
@@ -227,13 +226,11 @@ synchronized (lock) {
 ### 2. 迭代器并发修改
 
 ```java
-// 当前版本不支持迭代器
-// 如需遍历，建议先获取所有键
-Set<String> keys = map.keySet();  // 如果实现
-for (String key : keys) {
-    Long value = map.get(key);
-    // 处理
-}
+// RogueMap 不提供 keySet()/entrySet() 迭代器
+// 建议使用 forEach 遍历
+map.forEach((key, value) -> {
+    // 处理 key / value
+});
 ```
 
 ## 内存可见性
@@ -270,14 +267,14 @@ RogueMap 内部不会产生死锁，因为：
 
 ```java
 // 高并发场景：增加段数
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .segmentedIndex(128)  // 增加到 128 段
     .build();
 
 // 低并发场景：减少段数
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .segmentedIndex(32)  // 减少到 32 段

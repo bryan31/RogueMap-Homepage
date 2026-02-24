@@ -8,7 +8,8 @@
 
 ```java
 // 推荐 ✅
-try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+        .temporary()
         .keyCodec(StringCodec.INSTANCE)
         .valueCodec(PrimitiveCodecs.LONG)
         .build()) {
@@ -17,11 +18,12 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
 } // 自动调用 close()，释放资源
 
 // 避免 ❌
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
-// 忘记调用 close() 会导致内存泄漏
+// 忘记调用 close() 会导致资源泄漏
 ```
 
 ### 2. 注册 Shutdown Hook
@@ -50,13 +52,15 @@ Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 
 ```java
 // 好 ✅ - 零拷贝，高性能
-RogueMap<Long, Long> map = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> map = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // 避免 ❌ - 序列化开销
-RogueMap<String, String> map = RogueMap.<String, String>offHeap()
+RogueMap<String, String> map = RogueMap.<String, String>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
     .build();
@@ -67,14 +71,16 @@ RogueMap<String, String> map = RogueMap.<String, String>offHeap()
 
 ```java
 // 高并发场景：SegmentedHashIndex
-RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
+RogueMap<String, User> cache = RogueMap.<String, User>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .segmentedIndex(128) // 高并发
     .build();
 
 // Long 键 + 内存敏感：LongPrimitiveIndex
-RogueMap<Long, Long> idMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> idMap = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .primitiveIndex() // 节省 81% 内存
@@ -96,41 +102,21 @@ for (Map.Entry<String, Long> entry : batch.entrySet()) {
 }
 ```
 
-### 4. 合理设置内存大小
+### 4. 开启自动扩容
 
 ```java
-// 估算内存需求
-long recordCount = 1_000_000;
-int avgKeySize = 20;
-int avgValueSize = 100;
-double overhead = 1.2;
-
-long requiredMemory = (long) (recordCount * (avgKeySize + avgValueSize) * overhead);
-
-RogueMap<K, V> map = RogueMap.<K, V>offHeap()
-    .maxMemory(requiredMemory)
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data.db")
+    .allocateSize(256 * 1024 * 1024L) // 初始 256MB
+    .autoExpand(true)  // 开启自动扩容
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(PrimitiveCodecs.LONG)
     .build();
 ```
 
 ## 存储模式选择
 
-### 1. OffHeap - 内存敏感场景
-
-```java
-// 适合：降低 GC 压力，中等数据量
-RogueMap<String, User> cache = RogueMap.<String, User>offHeap()
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(KryoObjectCodec.create(User.class))
-    .maxMemory(2 * 1024 * 1024 * 1024) // 2GB
-    .build();
-```
-
-**适用场景**:
-- 需要降低 GC 压力
-- 数据量在 GB 级别
-- 不需要持久化
-
-### 2. Mmap Temp - 大数据临时处理
+### 1. Mmap Temp - 大数据临时处理
 
 ```java
 // 适合：大数据量临时处理
@@ -147,7 +133,7 @@ RogueMap<Long, Record> tempData = RogueMap.<Long, Record>mmap()
 - 批处理任务
 - 自动清理
 
-### 3. Mmap Persist - 持久化存储
+### 2. Mmap Persist - 持久化存储
 
 ```java
 // 适合：需要持久化
@@ -156,6 +142,7 @@ RogueMap<String, Document> db = RogueMap.<String, Document>mmap()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(Document.class))
     .allocateSize(20L * 1024 * 1024 * 1024) // 20GB
+    .autoExpand(true)
     .build();
 ```
 
@@ -170,7 +157,8 @@ RogueMap<String, Document> db = RogueMap.<String, Document>mmap()
 
 ```java
 // 使用 SegmentedHashIndex
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .segmentedIndex(128) // 增加段数
@@ -269,49 +257,14 @@ try {
 }
 ```
 
-## 内存管理
-
-### 1. 设置 JVM 参数
-
-```bash
-# 同时设置堆内存和直接内存
-java -Xmx4g -XX:MaxDirectMemorySize=4g -jar app.jar
-```
-
-### 2. 监控内存使用
-
-```java
-// 堆内存
-Runtime runtime = Runtime.getRuntime();
-long heapUsed = runtime.totalMemory() - runtime.freeMemory();
-System.out.println("Heap: " + heapUsed / 1024 / 1024 + " MB");
-
-// Map 大小
-int size = map.size();
-System.out.println("Map size: " + size);
-```
-
-### 3. 避免内存泄漏
-
-```java
-// 确保关闭
-try (RogueMap<String, Long> map = ...) {
-    // 使用 map
-} // 自动关闭
-
-// 或使用 Shutdown Hook
-Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-    map.close();
-}));
-```
-
 ## 常见陷阱
 
 ### 1. 忘记关闭
 
 ```java
 // 错误 ❌
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
@@ -323,20 +276,7 @@ try (RogueMap<String, Long> map = ...) {
 }
 ```
 
-### 2. 超出内存限制
-
-```java
-// 错误 ❌
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
-    .maxMemory(10L * 1024 * 1024 * 1024) // 10GB
-    .build();
-// 但 -XX:MaxDirectMemorySize=2g 只有 2GB
-
-// 正确 ✅
-// 确保 maxMemory <= MaxDirectMemorySize
-```
-
-### 3. 编解码器不一致
+### 2. 编解码器不一致
 
 ```java
 // 错误 ❌
@@ -357,7 +297,7 @@ RogueMap<String, String> map2 = RogueMap.<String, String>mmap()
 // 使用相同的编解码器
 ```
 
-### 4. 磁盘空间不足
+### 3. 磁盘空间不足
 
 ```java
 // 检查磁盘空间
@@ -380,7 +320,8 @@ import org.slf4j.LoggerFactory;
 
 Logger logger = LoggerFactory.getLogger(MyApp.class);
 
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
@@ -403,62 +344,6 @@ long duration = (endTime - startTime) / 1_000_000; // ms
 System.out.println("Write 1M entries: " + duration + " ms");
 ```
 
-### 3. 定期检查
-
-```java
-ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-scheduler.scheduleAtFixedRate(() -> {
-    int size = map.size();
-    Runtime runtime = Runtime.getRuntime();
-    long heapUsed = runtime.totalMemory() - runtime.freeMemory();
-
-    System.out.println("Map size: " + size);
-    System.out.println("Heap used: " + heapUsed / 1024 / 1024 + " MB");
-}, 0, 1, TimeUnit.MINUTES);
-```
-
-## 生产环境建议
-
-### 1. 配置文件化
-
-```java
-// application.properties
-roguemap.maxMemory=2147483648
-roguemap.dataDir=/var/data/roguemap
-roguemap.segments=128
-
-// 读取配置
-long maxMemory = config.getLong("roguemap.maxMemory");
-String dataDir = config.getString("roguemap.dataDir");
-int segments = config.getInt("roguemap.segments");
-```
-
-### 2. 监控告警
-
-```java
-// 监控内存使用
-if (heapUsed > maxMemory * 0.9) {
-    logger.warn("Memory usage high: {}%", heapUsed * 100 / maxMemory);
-    // 发送告警
-}
-```
-
-### 3. 优雅关闭
-
-```java
-// Spring Boot 示例
-@PreDestroy
-public void destroy() {
-    logger.info("Closing RogueMap...");
-    try {
-        map.close();
-        logger.info("RogueMap closed successfully");
-    } catch (Exception e) {
-        logger.error("Error closing RogueMap", e);
-    }
-}
-```
-
 ## 总结
 
 **DO**:
@@ -466,12 +351,10 @@ public void destroy() {
 - ✅ 优先使用原始类型
 - ✅ 选择合适的索引
 - ✅ 定期刷盘（持久化模式）
-- ✅ 设置 JVM 参数
 - ✅ 异常处理
 
 **DON'T**:
 - ❌ 忘记关闭
-- ❌ 超出内存限制
 - ❌ 编解码器不一致
 - ❌ 忽略磁盘空间检查
 - ❌ 复合操作不加锁
@@ -480,3 +363,4 @@ public void destroy() {
 
 - [性能白皮书](../performance/benchmark) - 性能数据与分析
 - [配置选项](./configuration.md) - 配置说明
+- [运维指南](./operations.md) - 监控和维护

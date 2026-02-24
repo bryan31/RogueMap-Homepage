@@ -29,7 +29,7 @@ for (int i = 0; i < 1_000_000; i++) {
 
 ### 3. MapDB 的性能问题
 
-虽然 MapDB 提供了堆外存储和持久化，但性能不够理想：
+虽然 MapDB 提供了持久化，但性能不够理想：
 
 - ❌ 读取速度慢（100 万条数据需要 3.2 秒）
 - ❌ 写入速度慢（100 万条数据需要 2.8 秒）
@@ -37,20 +37,20 @@ for (int i = 0; i < 1_000_000; i++) {
 
 ## RogueMap 的解决方案
 
-### 1. 堆外内存存储
+### 1. 内存映射文件存储
 
-RogueMap 将数据存储在 JVM 堆外内存中：
+RogueMap 将数据存储在内存映射文件中：
 
 ```java
-// RogueMap 使用堆外内存
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+// RogueMap 使用内存映射文件
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
-    .maxMemory(100 * 1024 * 1024) // 100MB
     .build();
 
 // 优势：
-// ✅ 堆内存占用减少 84.7%
+// ✅ 堆内存占用大幅减少
 // ✅ GC 压力显著降低
 // ✅ 避免 OOM 风险
 ```
@@ -62,14 +62,14 @@ RogueMap 通过多种优化手段实现极致性能：
 **零拷贝序列化**
 ```java
 // 原始类型直接内存布局，无序列化开销
-RogueMap<Long, Long> map = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> map = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 ```
 
-**Slab 内存分配**
-- 7 个 size class（16B 到 16KB）
+**智能内存分配**
 - 减少内存碎片
 - 空闲列表重用
 
@@ -84,7 +84,6 @@ RogueMap<Long, Long> map = RogueMap.<Long, Long>offHeap()
 
 | 模式 | 特点 | 适用场景 |
 |-----|------|---------|
-| OffHeap | 堆外内存，低 GC | 内存敏感应用 |
 | Mmap Temp | 临时文件，自动清理 | 大数据临时处理 |
 | Mmap Persist | 持久化，可恢复 | 需要数据持久化 |
 
@@ -92,10 +91,10 @@ RogueMap<Long, Long> map = RogueMap.<Long, Long>offHeap()
 
 ```java
 // 类型安全的 Builder API
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data.db")
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
-    .maxMemory(100 * 1024 * 1024)
     .build();
 
 // 熟悉的 Map 接口
@@ -103,25 +102,6 @@ map.put("key", 100L);
 Long value = map.get("key");
 map.remove("key");
 ```
-
-## 性能对比
-
-### RogueMap 多模式对比
-
-基于 Linux 2C4G 服务器，100 万条数据测试（对象包含 10 个属性）
-
-| 模式 | 写入 | 读取 | 写吞吐量 | 读吞吐量 | 堆内存 |
-|-----|------|------|----------|----------|--------|
-| HashMap | 1,535ms | 158ms | 651,465 ops/s | 6,329,113 ops/s | 311.31 MB |
-| FastUtil | 600ms | 32ms | 1,666,666 ops/s | 31,250,000 ops/s | 275.69 MB |
-| **RogueMap Mmap 持久化** | **1,057ms** | **642ms** | **946,073 ops/s** | **1,557,632 ops/s** | **47.63 MB** |
-| **RogueMap OffHeap** | 1,924ms | 854ms | 519,750 ops/s | 1,170,960 ops/s | **47.81 MB** |
-
-**关键发现**：
-- 堆内存占用减少 **84.7%**（从 311.31 MB 降至 47.63 MB）
-- 写入性能比 HashMap 提升 **1.45 倍**（1,535ms → 1,057ms）
-- 读取吞吐达到 **155 万 ops/s**，满足绝大多数业务场景
-- **唯一同时支持持久化和高性能的方案**
 
 ## 设计理念
 
@@ -152,10 +132,11 @@ map.remove("key");
 
 ```java
 // 替代 Redis/Memcached
-RogueMap<String, UserProfile> cache = RogueMap.<String, UserProfile>offHeap()
+RogueMap<String, UserProfile> cache = RogueMap.<String, UserProfile>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(UserProfile.class))
-    .maxMemory(1024 * 1024 * 1024) // 1GB
+    .allocateSize(1024 * 1024 * 1024) // 1GB
     .build();
 
 // 优势：
@@ -201,17 +182,16 @@ RogueMap<String, Config> configStore = RogueMap.<String, Config>mmap()
 
 选择 RogueMap 的理由：
 
-1. **写入性能优秀** - 比 HashMap 快 1.45 倍（只写索引，不写数据）
-2. **更低的内存占用** - 减少 84.7% 堆内存，大幅降低 GC 压力
+1. **写入性能优秀** - 比 HashMap 更快
+2. **更低的内存占用** - 大幅降低 GC 压力
 3. **更简单的 API** - 类型安全，易于使用
 4. **零依赖** - 核心库无第三方依赖
-5. **灵活的存储** - 三种模式自由选择
+5. **灵活的存储** - 两种模式自由选择
 6. **持久化支持** - 唯一同时支持持久化和高性能的方案
 7. **高并发** - 线程安全，支持高并发读写
-8. **百万级读取吞吐** - 155 万 ops/s，满足绝大多数业务场景
 
 ## 下一步
 
 - [快速开始](./getting-started.md) - 5 分钟上手
-- [存储模式](./storage-modes.md) - 了解三种存储模式
+- [存储模式](./storage-modes.md) - 了解两种存储模式
 - [性能白皮书](../performance/benchmark) - 详细性能数据与分析

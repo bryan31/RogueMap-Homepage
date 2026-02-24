@@ -2,6 +2,12 @@
 
 本指南将帮助你在 5 分钟内快速上手 RogueMap。
 
+## 推荐阅读顺序
+
+1. 先看 [上手路线（10 分钟）](./quick-start-path.md) ，拿到最短落地路径。
+2. 再按本页示例跑通第一次写入与恢复。
+3. 最后进入 [配置选项](./configuration.md) 按业务调优。
+
 ## 安装
 
 ### Maven
@@ -12,7 +18,7 @@
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.0-BETA2</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -21,23 +27,32 @@
 在你的 `build.gradle` 中添加依赖：
 
 ```gradle
-implementation 'com.yomahub:roguemap:1.0.0-BETA2'
+implementation 'com.yomahub:roguemap:1.0.1'
 ```
+
+## 结构选型速查
+
+| 结构 | 适合什么场景 |
+|---|---|
+| `RogueMap<K, V>` | 键值存储、缓存、状态表 |
+| `RogueList<E>` | 顺序写入、日志流、时间序列 |
+| `RogueSet<E>` | 去重、标签、黑名单 |
+| `RogueQueue<E>` | 任务队列、消息消费 |
 
 ## 第一个示例
 
-### OffHeap 模式（堆外内存）
+### Mmap 临时文件模式
 
 ```java
 import com.yomahub.roguemap.RogueMap;
 import com.yomahub.roguemap.serialization.PrimitiveCodecs;
 import com.yomahub.roguemap.serialization.StringCodec;
 
-// 创建一个 String -> Long 的堆外内存 Map
-try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+// 创建一个 String -> Long 的临时文件 Map
+try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+        .temporary()
         .keyCodec(StringCodec.INSTANCE)
         .valueCodec(PrimitiveCodecs.LONG)
-        .maxMemory(100 * 1024 * 1024) // 100MB
         .build()) {
 
     // 存储数据
@@ -74,27 +89,24 @@ RogueMap 提供了零拷贝的原始类型编解码器：
 
 ```java
 // Long 类型（高性能）
-RogueMap<Long, Long> longMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> longMap = RogueMap.<Long, Long>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // Integer 类型
-RogueMap<Integer, Integer> intMap = RogueMap.<Integer, Integer>offHeap()
+RogueMap<Integer, Integer> intMap = RogueMap.<Integer, Integer>mmap()
+    .temporary()
     .keyCodec(PrimitiveCodecs.INTEGER)
     .valueCodec(PrimitiveCodecs.INTEGER)
     .build();
 
 // String 类型
-RogueMap<String, String> stringMap = RogueMap.<String, String>offHeap()
+RogueMap<String, String> stringMap = RogueMap.<String, String>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
-    .build();
-
-// 混合类型
-RogueMap<String, Double> mixedMap = RogueMap.<String, Double>offHeap()
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(PrimitiveCodecs.DOUBLE)
     .build();
 ```
 
@@ -108,7 +120,8 @@ RogueMap<String, Double> mixedMap = RogueMap.<String, Double>offHeap()
 import com.yomahub.roguemap.serialization.KryoObjectCodec;
 
 // 对象类型
-RogueMap<String, YourObject> objectMap = RogueMap.<String, YourObject>offHeap()
+RogueMap<String, YourObject> objectMap = RogueMap.<String, YourObject>mmap()
+    .temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(YourObject.class))
     .build();
@@ -118,21 +131,9 @@ RogueMap<String, YourObject> objectMap = RogueMap.<String, YourObject>offHeap()
 使用对象序列化会带来额外的性能开销，建议优先使用原始类型。
 :::
 
-## 三种存储模式
+## 两种存储模式
 
-### 1. OffHeap 模式（堆外内存）
-
-适合需要降低 GC 压力的场景：
-
-```java
-RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(PrimitiveCodecs.LONG)
-    .maxMemory(100 * 1024 * 1024) // 100MB
-    .build();
-```
-
-### 2. Mmap 临时文件模式
+### 1. Mmap 临时文件模式
 
 自动创建临时文件，JVM 关闭后自动删除：
 
@@ -145,7 +146,7 @@ RogueMap<Long, Long> tempMap = RogueMap.<Long, Long>mmap()
     .build();
 ```
 
-### 3. Mmap 持久化模式
+### 2. Mmap 持久化模式
 
 支持数据持久化到磁盘：
 
@@ -175,7 +176,6 @@ map2.close();
 ```
 
 ::: tip 选择建议
-- **OffHeap 模式**: 内存敏感，需要降低 GC 压力
 - **Mmap 临时文件**: 大数据量临时处理
 - **Mmap 持久化**: 需要数据持久化
 :::
@@ -183,7 +183,8 @@ map2.close();
 ## 基本操作
 
 ```java
-try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
+try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+        .temporary()
         .keyCodec(StringCodec.INSTANCE)
         .valueCodec(PrimitiveCodecs.LONG)
         .build()) {
@@ -210,7 +211,9 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>offHeap()
 
 ## 下一步
 
-- [存储模式](./storage-modes.md) - 深入了解三种存储模式
+- [功能矩阵](./feature-matrix.md) - 四种结构能力与边界一页看懂
+- [存储模式](./storage-modes.md) - 深入了解两种存储模式
 - [索引策略](./index-strategies.md) - 选择合适的索引
 - [编解码器](./codecs.md) - 自定义数据序列化
 - [配置选项](./configuration.md) - 详细配置说明
+- [常见问题与排障](./troubleshooting.md) - 快速定位使用问题

@@ -12,43 +12,43 @@ RogueMap 为所有 Java 原始类型提供了零拷贝的高性能编解码器�
 
 ```java
 // Long 类型
-RogueMap<Long, Long> longMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> longMap = RogueMap.<Long, Long>mmap().temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // Integer 类型
-RogueMap<Integer, Integer> intMap = RogueMap.<Integer, Integer>offHeap()
+RogueMap<Integer, Integer> intMap = RogueMap.<Integer, Integer>mmap().temporary()
     .keyCodec(PrimitiveCodecs.INTEGER)
     .valueCodec(PrimitiveCodecs.INTEGER)
     .build();
 
 // Double 类型
-RogueMap<Double, Double> doubleMap = RogueMap.<Double, Double>offHeap()
+RogueMap<Double, Double> doubleMap = RogueMap.<Double, Double>mmap().temporary()
     .keyCodec(PrimitiveCodecs.DOUBLE)
     .valueCodec(PrimitiveCodecs.DOUBLE)
     .build();
 
 // Float 类型
-RogueMap<Float, Float> floatMap = RogueMap.<Float, Float>offHeap()
+RogueMap<Float, Float> floatMap = RogueMap.<Float, Float>mmap().temporary()
     .keyCodec(PrimitiveCodecs.FLOAT)
     .valueCodec(PrimitiveCodecs.FLOAT)
     .build();
 
 // Short 类型
-RogueMap<Short, Short> shortMap = RogueMap.<Short, Short>offHeap()
+RogueMap<Short, Short> shortMap = RogueMap.<Short, Short>mmap().temporary()
     .keyCodec(PrimitiveCodecs.SHORT)
     .valueCodec(PrimitiveCodecs.SHORT)
     .build();
 
 // Byte 类型
-RogueMap<Byte, Byte> byteMap = RogueMap.<Byte, Byte>offHeap()
+RogueMap<Byte, Byte> byteMap = RogueMap.<Byte, Byte>mmap().temporary()
     .keyCodec(PrimitiveCodecs.BYTE)
     .valueCodec(PrimitiveCodecs.BYTE)
     .build();
 
 // Boolean 类型
-RogueMap<Boolean, Boolean> boolMap = RogueMap.<Boolean, Boolean>offHeap()
+RogueMap<Boolean, Boolean> boolMap = RogueMap.<Boolean, Boolean>mmap().temporary()
     .keyCodec(PrimitiveCodecs.BOOLEAN)
     .valueCodec(PrimitiveCodecs.BOOLEAN)
     .build();
@@ -77,7 +77,7 @@ RogueMap<Boolean, Boolean> boolMap = RogueMap.<Boolean, Boolean>offHeap()
 StringCodec 用于序列化和反序列化字符串，使用 UTF-8 编码。
 
 ```java
-RogueMap<String, String> stringMap = RogueMap.<String, String>offHeap()
+RogueMap<String, String> stringMap = RogueMap.<String, String>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
     .build();
@@ -107,7 +107,7 @@ public class User {
     // getters and setters
 }
 
-RogueMap<String, User> userMap = RogueMap.<String, User>offHeap()
+RogueMap<String, User> userMap = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .build();
@@ -137,19 +137,19 @@ RogueMap<String, User> userMap = RogueMap.<String, User>offHeap()
 
 ```java
 // String -> Long
-RogueMap<String, Long> map1 = RogueMap.<String, Long>offHeap()
+RogueMap<String, Long> map1 = RogueMap.<String, Long>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // Long -> String
-RogueMap<Long, String> map2 = RogueMap.<Long, String>offHeap()
+RogueMap<Long, String> map2 = RogueMap.<Long, String>mmap().temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(StringCodec.INSTANCE)
     .build();
 
 // String -> User
-RogueMap<String, User> map3 = RogueMap.<String, User>offHeap()
+RogueMap<String, User> map3 = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .build();
@@ -216,7 +216,7 @@ public class JsonCodec<T> implements Codec<T> {
 ### 使用自定义编解码器
 
 ```java
-RogueMap<String, User> map = RogueMap.<String, User>offHeap()
+RogueMap<String, User> map = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(JsonCodec.create(User.class))
     .build();
@@ -259,13 +259,13 @@ User user = map.get("user1");
 
 ```java
 // 好的做法 ✅
-RogueMap<Long, Long> idMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> idMap = RogueMap.<Long, Long>mmap().temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
 // 避免 ❌
-RogueMap<String, String> idMap = RogueMap.<String, String>offHeap()
+RogueMap<String, String> idMap = RogueMap.<String, String>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
     .build();
@@ -276,13 +276,13 @@ RogueMap<String, String> idMap = RogueMap.<String, String>offHeap()
 
 ```java
 // 好的做法 ✅（更快）
-RogueMap<String, User> userMap = RogueMap.<String, User>offHeap()
+RogueMap<String, User> userMap = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(KryoObjectCodec.create(User.class))
     .build();
 
 // 可选方案（跨语言场景）
-RogueMap<String, User> userMap = RogueMap.<String, User>offHeap()
+RogueMap<String, User> userMap = RogueMap.<String, User>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(JsonCodec.create(User.class))
     .build();
@@ -313,7 +313,7 @@ Long value = map2.get("key"); // 正确
 
 ```java
 // StringCodec 支持 null
-RogueMap<String, String> map = RogueMap.<String, String>offHeap()
+RogueMap<String, String> map = RogueMap.<String, String>mmap().temporary()
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(StringCodec.INSTANCE)
     .build();
@@ -322,7 +322,7 @@ map.put("key", null); // OK
 String value = map.get("key"); // null
 
 // PrimitiveCodecs 不支持 null（原始类型）
-RogueMap<Long, Long> longMap = RogueMap.<Long, Long>offHeap()
+RogueMap<Long, Long> longMap = RogueMap.<Long, Long>mmap().temporary()
     .keyCodec(PrimitiveCodecs.LONG)
     .valueCodec(PrimitiveCodecs.LONG)
     .build();

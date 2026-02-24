@@ -266,11 +266,10 @@ RogueMap<String, Long> newMap = RogueMap.<String, Long>mmap()
     .valueCodec(PrimitiveCodecs.LONG)
     .build();
 
-// 迁移数据（需要实现迭代功能）
-// 示例：假设有 getAllEntries() 方法
-for (Map.Entry<String, Long> entry : oldMap.getAllEntries()) {
-    newMap.put(entry.getKey(), entry.getValue());
-}
+// 迁移数据：使用 forEach 遍历旧实例
+oldMap.forEach((key, value) -> {
+    newMap.put(key, value);
+});
 
 oldMap.close();
 newMap.close();
