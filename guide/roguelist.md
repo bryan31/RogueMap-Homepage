@@ -267,6 +267,50 @@ try {
 3. **迭代器并发** - 迭代过程中不要修改链表，可能抛出 `ConcurrentModificationException`
 4. **持久化一致性** - 关闭前调用 `flush()` 确保数据落盘
 
+## 运维与进阶功能
+
+### 空间回收
+
+```java
+// 碎片率超过 50% 时执行压缩
+StorageMetrics metrics = list.getMetrics();
+if (metrics.shouldCompact(0.5)) {
+    list = list.compact(512 * 1024 * 1024L);  // 返回新实例
+}
+```
+
+### TTL（数据过期）
+
+```java
+RogueList<String> list = RogueList.<String>mmap()
+    .persistent("data/list.db")
+    .elementCodec(StringCodec.INSTANCE)
+    .defaultTTL(1, TimeUnit.HOURS)
+    .build();
+```
+
+### 自动检查点
+
+```java
+RogueList<String> list = RogueList.<String>mmap()
+    .persistent("data/list.db")
+    .elementCodec(StringCodec.INSTANCE)
+    .autoCheckpoint(5, TimeUnit.MINUTES)
+    .autoCheckpoint(5000)
+    .build();
+```
+
+### 自动扩容
+
+```java
+RogueList<String> list = RogueList.<String>mmap()
+    .persistent("data/list.db")
+    .elementCodec(StringCodec.INSTANCE)
+    .autoExpand(true)
+    .expandFactor(2.0)
+    .build();
+```
+
 ## 下一步
 
 - [RogueSet](./rogueset.md) - 并发集合

@@ -41,21 +41,26 @@ System.out.println("Alice's score: " + score);
 ### 文件头（Header）
 
 ```
-File Header (4KB)
-┌────────────────────────────────┐
-│ Magic Number (4 bytes)         │ 0x524D4150 ("RMAP")
-├────────────────────────────────┤
-│ Version (4 bytes)               │ 1
-├────────────────────────────────┤
-│ Allocated Size (8 bytes)        │ 1073741824
-├────────────────────────────────┤
-│ Current Offset (8 bytes)        │ 当前写入位置
-├────────────────────────────────┤
-│ Entry Count (4 bytes)           │ 条目数量
-├────────────────────────────────┤
-│ Reserved (4060 bytes)           │ 预留空间
-└────────────────────────────────┘
+文件头（4KB = 4096 字节）
+├── offset  0-47:  9 个数据字段（magic、version、dataType、indexType、entryCount、currentOffset、indexOffset、indexSize、isTemporary）
+├── offset 48-51:  CRC32 校验和（对 offset 0-47 的内容计算）
+├── offset 52-55:  writeGen（写入代数：奇数=写入中，偶数=写入完成）
+├── offset 56-59:  dirtyFlag（1=非正常关闭，0=正常关闭）
+├── offset 60-63:  保留
+├── offset 64-95:  队列快照区（headRelOffset、tailRelOffset、size、valid、currentAllocOffset，LinkedQueue 崩溃恢复用）
+├── offset 96-111: RogueList TTL 区（整体过期时间戳 + 保留）
+└── offset 112-4095: 保留
 ```
+
+**关键字段说明：**
+
+- **indexType**：索引类型标识（0=HashIndex，1=SegmentedHashIndex，2=LongPrimitiveIndex，3=IntPrimitiveIndex，4=LowHeapStringIndex）。
+- **isTemporary**：存储模式标识（0=persistent，1=temporary）。
+- **CRC32 校验和**：在写入文件头时计算并保存，在读取时验证数据完整性。
+- **writeGen**：写入代数计数器。写入前 +1（变为奇数），写入后 +1（变为偶数）。如果读取时为奇数，说明上次写入未完成。
+- **dirtyFlag**：打开文件时设为 1，正常 `close()` 时设回 0。如果打开时发现 `dirtyFlag = 1`，说明上次非正常关闭。
+- **队列快照区**：仅 LinkedQueue 使用，在每次 `offer()`/`poll()` 时快照 head/tail/size 及当前分配偏移量，用于崩溃后恢复。
+- **版本号**：当前为 v2（支持 TTL）。
 
 ### 数据区
 

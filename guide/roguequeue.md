@@ -373,6 +373,60 @@ System.out.println(q2.peek());  // "b"
 3. **元素大小** - 环形队列需预估最大元素字节数
 4. **持久化** - 关键数据记得调用 `flush()`
 
+## 运维与进阶功能
+
+### 空间回收（仅链表模式）
+
+```java
+StorageMetrics metrics = queue.getMetrics();
+if (metrics.shouldCompact(0.5)) {
+    queue = queue.compact(512 * 1024 * 1024L);  // 仅链表模式支持
+}
+```
+
+::: warning
+环形队列（circular）不支持 `compact()`，因为其使用固定槽位，不存在碎片问题。
+:::
+
+### TTL（数据过期）
+
+```java
+RogueQueue<String> queue = RogueQueue.<String>mmap()
+    .persistent("data/queue.db")
+    .linked()
+    .elementCodec(StringCodec.INSTANCE)
+    .defaultTTL(1, TimeUnit.HOURS)
+    .build();
+```
+
+### 自动检查点
+
+```java
+RogueQueue<String> queue = RogueQueue.<String>mmap()
+    .persistent("data/queue.db")
+    .linked()
+    .elementCodec(StringCodec.INSTANCE)
+    .autoCheckpoint(5, TimeUnit.MINUTES)
+    .autoCheckpoint(5000)
+    .build();
+```
+
+::: tip
+LinkedQueue 在每次 `offer()`/`poll()` 时都会自动快照 head/tail/size 到文件头，已具备基本的崩溃恢复能力。`autoCheckpoint()` 提供额外的索引持久化保障。
+:::
+
+### 自动扩容
+
+```java
+RogueQueue<String> queue = RogueQueue.<String>mmap()
+    .persistent("data/queue.db")
+    .linked()
+    .elementCodec(StringCodec.INSTANCE)
+    .autoExpand(true)
+    .expandFactor(2.0)
+    .build();
+```
+
 ## 下一步
 
 - [事务](./transaction.md) - 多操作原子提交

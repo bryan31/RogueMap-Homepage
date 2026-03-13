@@ -18,13 +18,13 @@
 
 ## 第 3 步：复制可运行模板（3 分钟）
 
-### Maven 依赖（1.0.1）
+### Maven 依赖（1.0.2）
 
 ```xml
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -50,8 +50,10 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
 
 - 并发写入多：用默认 `segmentedIndex(64)`。
 - `Long` 或 `Integer` 键且内存敏感：用 `primitiveIndex()`。
+- `String` 键且堆内存极敏感：用 `lowHeapIndex()`（仅 RogueMap/RogueSet）。
 - 数据量不确定：开启 `autoExpand(true)`。
-- 关键写入链路：定期 `checkpoint()`。
+- 关键写入链路：定期 `checkpoint()`，或开启 `autoCheckpoint()`。
+- 数据需要自动过期：设置 `defaultTTL(duration, unit)`。
 
 ## 第 5 步：上线前检查（2 分钟）
 

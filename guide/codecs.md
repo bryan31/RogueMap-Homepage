@@ -131,6 +131,39 @@ RogueMap<String, User> userMap = RogueMap.<String, User>mmap().temporary()
 - ⚠️ 需要额外依赖
 - ⚠️ 性能不如原始类型
 
+### TypeReference（泛型类型保留）
+
+当值类型包含复杂泛型（如 `List<User>`、`Map<String, List<Data>>`）时，Java 的类型擦除会导致 Kryo 无法正确反序列化。`TypeReference` 通过匿名子类在运行时保留完整的泛型信息。
+
+#### 基本用法
+
+```java
+import com.yomahub.roguemap.serialization.TypeReference;
+import com.yomahub.roguemap.serialization.KryoObjectCodec;
+
+// 保留 List<User> 的泛型信息
+TypeReference<List<User>> typeRef = new TypeReference<List<User>>() {};
+
+RogueMap<String, List<User>> map = RogueMap.<String, List<User>>mmap()
+    .temporary()
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(new KryoObjectCodec<>(typeRef))
+    .build();
+```
+
+#### 嵌套泛型
+
+```java
+// 嵌套泛型也可以
+TypeReference<Map<String, List<Integer>>> typeRef =
+    new TypeReference<Map<String, List<Integer>>>() {};
+Codec<Map<String, List<Integer>>> codec = new KryoObjectCodec<>(typeRef);
+```
+
+::: tip 何时需要 TypeReference
+如果值类型不含泛型（如单独的 `User` 类），直接用 `KryoObjectCodec.create(User.class)` 即可，不需要 TypeReference。只有当值类型本身包含泛型参数时才需要使用 TypeReference。
+:::
+
 ## 混合使用
 
 键和值可以使用不同的编解码器：
@@ -239,7 +272,10 @@ User user = map.get("user1");
   │   ├─ 需要跨语言？
   │   │   └─ 使用 JsonCodec ✅
   │   └─ 仅 Java 内部使用？
-  │       └─ 使用 KryoObjectCodec ✅（更快）
+  │       ├─ 含泛型参数（如 List<User>）？
+  │       │   └─ 使用 KryoObjectCodec + TypeReference ✅
+  │       └─ 无泛型？
+  │           └─ 使用 KryoObjectCodec.create(Class) ✅（更快）
   └─ 特殊需求
       └─ 自定义 Codec ✅
 ```

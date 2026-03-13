@@ -116,6 +116,14 @@ try {
 - ⚠️ 高并发写入性能不如 SegmentedHashIndex
 - ✅ 适合读多写少场景
 
+## LowHeapStringIndex 并发模型
+
+LowHeapStringIndex 同样采用分段锁设计（默认 64 段），每段独立的 `StampedLock`。与 `SegmentedHashIndex` 的区别在于：
+
+- 键的哈希、查找、插入全部在 mmap 中完成，不涉及 JVM 堆上的 `HashMap`。
+- 使用开放寻址（linear probing），锁的粒度与 SegmentedHashIndex 相同。
+- 适合键数量极多但需要控制堆内存的场景。
+
 ## 并发性能测试
 
 ### 读性能（100 万次操作）

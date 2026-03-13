@@ -18,7 +18,7 @@
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@
 在你的 `build.gradle` 中添加依赖：
 
 ```gradle
-implementation 'com.yomahub:roguemap:1.0.1'
+implementation 'com.yomahub:roguemap:1.0.2'
 ```
 
 ## 结构选型速查
@@ -208,6 +208,51 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
     map.clear();
 }
 ```
+
+## 更多功能
+
+### TTL（数据过期）
+
+```java
+// 设置默认 30 分钟过期
+RogueMap<String, String> cache = RogueMap.<String, String>mmap()
+    .persistent("data/cache.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(StringCodec.INSTANCE)
+    .defaultTTL(30, TimeUnit.MINUTES)
+    .build();
+
+cache.put("key1", "value1");                        // 使用默认 TTL
+cache.put("key2", "value2", 1, TimeUnit.HOURS);     // 自定义 TTL
+```
+
+### 自动检查点
+
+```java
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data/demo.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(PrimitiveCodecs.LONG)
+    .autoCheckpoint(5, TimeUnit.MINUTES)  // 按时间
+    .autoCheckpoint(10000)                // 按操作次数
+    .build();
+```
+
+### 超低堆索引
+
+```java
+// 仅支持 String 键
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data/low-heap.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(PrimitiveCodecs.LONG)
+    .lowHeapIndex()
+    .build();
+```
+
+::: tip
+更多细节请参阅 [索引策略](./index-strategies.md)、[运维操作](./operations.md) 和 [配置选项](./configuration.md)。
+:::
 
 ## 下一步
 

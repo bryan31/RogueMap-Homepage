@@ -254,6 +254,80 @@ map.checkpoint();  // 确保事务结果持久化
 - 每次checkpoint 会消耗文件空间存储索引快照
 - 可通过 `compact()` 回收checkpoint 占用的空间
 
+## 自动检查点（AutoCheckpoint）
+
+RogueMap 支持基于时间间隔和操作次数的自动检查点，避免手动调用 `checkpoint()` 的繁琐。
+
+**按时间间隔触发：**
+```java
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data/demo.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(PrimitiveCodecs.LONG)
+    .autoCheckpoint(5, TimeUnit.MINUTES)  // 每 5 分钟自动 checkpoint
+    .build();
+```
+
+**按操作次数触发：**
+```java
+RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
+    .persistent("data/demo.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(PrimitiveCodecs.LONG)
+    .autoCheckpoint(10000)  // 每 10000 次写操作自动 checkpoint
+    .build();
+```
+
+**两种模式同时开启：**
+```java
+.autoCheckpoint(5, TimeUnit.MINUTES)  // 时间触发
+.autoCheckpoint(10000)                // 操作次数触发
+// 任一条件满足即执行 checkpoint
+```
+
+::: tip 实现细节
+- 使用守护线程池（`ScheduledExecutorService`），不阻塞业务线程。
+- 操作计数器采用 CAS 原子操作，避免重复触发。
+- 仅在持久化模式下生效；临时模式下自动跳过。
+- 所有四种数据结构均支持。
+:::
+
+## TTL（数据过期）
+
+通过 `defaultTTL()` 为数据设置默认过期时间。写入数据时自动在 mmap 中追加 8 字节的过期时间戳前缀，读取时惰性判断并删除过期数据。
+
+**基本用法：**
+```java
+import java.util.concurrent.TimeUnit;
+
+RogueMap<String, String> cache = RogueMap.<String, String>mmap()
+    .persistent("data/cache.db")
+    .keyCodec(StringCodec.INSTANCE)
+    .valueCodec(StringCodec.INSTANCE)
+    .defaultTTL(30, TimeUnit.MINUTES)  // 默认 30 分钟过期
+    .build();
+
+cache.put("session:abc", "user-data");          // 使用默认 TTL
+cache.put("token:xyz", "jwt-data", 1, TimeUnit.HOURS); // 自定义 TTL（1 小时）
+
+// 30 分钟后
+cache.get("session:abc"); // 返回 null（已过期，惰性删除）
+```
+
+**存储格式：**
+```
+每条数据: [expireTime: 8 字节 (long)][实际序列化数据]
+```
+- `expireTime = 0` 表示永不过期。
+- 过期时间为绝对时间戳（`System.currentTimeMillis() + ttlMillis`）。
+
+::: warning 注意事项
+- TTL 基于惰性删除：数据在被读取时才判断是否过期，不会主动后台清理。
+- 每条数据额外占用 8 字节存储过期时间戳。
+- **RogueMap** 提供完整的运行时 TTL 支持：`get()` 自动惰性删除过期数据，`put(key, value, ttl, unit)` 可为单条数据指定独立的过期时间。
+- 其他数据结构（RogueList、RogueSet、RogueQueue）支持 `defaultTTL()` 构建参数，TTL 时间戳会写入存储。
+:::
+
 ## 监控指标
 
 ### 获取指标

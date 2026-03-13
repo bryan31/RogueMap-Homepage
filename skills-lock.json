@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "book-cover-design": {
+      "source": "inference-sh-8/skills",
+      "sourceType": "github",
+      "computedHash": "a6fa8c89b2d9bd1b4f23a249c51edaba1545bf1bcdc20293d34562b01be22699"
+    }
+  }
+}

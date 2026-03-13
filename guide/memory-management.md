@@ -169,6 +169,26 @@ LongPrimitiveIndex:
 内存节省: 约 58%
 ```
 
+### LowHeapStringIndex 内存对比
+
+| 索引类型 | 100 万 String 键堆内存估算 | mmap 占用 |
+|---|---|---|
+| SegmentedHashIndex | ~80 MB（HashMap + Entry 对象） | 无 |
+| LowHeapStringIndex | ~2 MB（仅段元数据和锁） | ~64 MB（槽位表 + 键字节） |
+
+LowHeapStringIndex 将键索引的内存消耗从 JVM 堆转移到 mmap 文件，显著降低 GC 压力。可通过 `getMetrics()` 查看实际占用：
+
+```java
+StorageMetrics metrics = map.getMetrics();
+metrics.getIndexHeapBytesEstimate();  // 堆内存估算
+metrics.getIndexMmapBytes();          // mmap 占用
+metrics.getAvgKeyBytes();             // 平均键长度
+```
+
+### TTL 内存开销
+
+启用 `defaultTTL()` 后，每条数据额外占用 8 字节存储过期时间戳（`long` 类型）。对于大量小值数据，这部分开销需要纳入容量规划。
+
 ## 内存配置建议
 
 ### Mmap 模式

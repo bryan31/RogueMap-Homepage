@@ -14,6 +14,9 @@
 | 显式检查点 `checkpoint()` | ✅ | ✅ | ✅ | ❌（链表队列由 `offer/poll` 自动快照） |
 | 空间压缩 `compact()` | ✅ | ✅ | ✅ | ✅（仅链表队列） |
 | 事务 | ✅（仅 `SegmentedHashIndex`） | ❌ | ❌ | ❌ |
+| `defaultTTL()` 数据过期 | ✅ | ✅ | ✅ | ✅ |
+| `autoCheckpoint()` 自动检查点 | ✅ | ✅ | ✅ | ✅ |
+| `lowHeapIndex()` 超低堆索引 | ✅（仅 String 键） | ❌ | ✅（仅 String 元素） | ❌ |
 | 迭代能力 | `forEach` | `Iterator` + `ListIterator` | `Iterator`（Fail-fast） | ❌ |
 
 ## 默认参数速查
@@ -40,6 +43,7 @@
 - `RogueQueue.compact()` 只支持链表模式（`linked()`）。
 - `segmentCount`/`segmentedIndex` 段数建议使用 2 的幂次方。
 - 持久化恢复时，编解码器必须与首次写入保持一致。
+- `lowHeapIndex()` 仅支持 String 类型键/元素，且不支持事务（`beginTransaction()`）。
 
 ## 下一步
 

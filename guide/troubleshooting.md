@@ -138,3 +138,58 @@ map = map.compact(512L * 1024 * 1024);
 
 建议在生产环境显式配置 `allocateSize` 与 `autoExpand`，避免隐式默认值带来的误判。
 
+## 9. 数据意外返回 null
+
+### 现象
+
+明明写入了数据，但 `get()` 返回 `null`。
+
+### 可能原因
+
+1. 数据已过期（TTL 到期），被惰性删除。
+2. 持久化模式下文件损坏。
+
+### 解决方法
+
+- 检查是否设置了 `defaultTTL()`，确认过期时间是否合理。
+- 使用 `put(key, value, ttl, unit)` 可为单条数据设置更长的过期时间。
+
+## 10. autoCheckpoint 不生效
+
+### 现象
+
+配置了 `autoCheckpoint()` 但崩溃后数据丢失。
+
+### 可能原因
+
+1. 使用了临时模式（`temporary()`），自动检查点仅在持久化模式下生效。
+2. 检查点间隔过长，崩溃发生在两次检查点之间。
+
+### 解决方法
+
+- 确认使用 `persistent(path)` 模式。
+- 缩短检查点间隔或降低操作次数阈值。
+- 关键操作后手动调用 `checkpoint()`。
+
+## 11. lowHeapIndex() 与事务不兼容
+
+### 现象
+
+使用 `lowHeapIndex()` 后调用 `beginTransaction()` 抛出 `UnsupportedOperationException`。
+
+### 原因
+
+`lowHeapIndex()` 不支持事务。事务仅在 `segmentedIndex()` 下可用。
+
+### 解决方法
+
+- 如需事务支持，改用默认的 `segmentedIndex(64)` 或显式指定 `.segmentedIndex(64)`。
+
+## 12. checkpoint() 和 flush() 的区别
+
+**`checkpoint()`**：将索引和元数据快照写入文件，是完整的持久化点。崩溃后可从此点恢复。
+
+**`flush()`**：将内存中修改过的页面同步到磁盘，但不保存索引快照。
+
+**建议**：需要崩溃恢复保障时使用 `checkpoint()`；`close()` 会自动调用两者。
+
