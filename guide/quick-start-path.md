@@ -18,13 +18,13 @@
 
 ## 第 3 步：复制可运行模板（3 分钟）
 
-### Maven 依赖（1.0.2）
+### Maven 依赖（1.1.0）
 
 ```xml
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 

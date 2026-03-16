@@ -18,7 +18,7 @@
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@
 在你的 `build.gradle` 中添加依赖：
 
 ```gradle
-implementation 'com.yomahub:roguemap:1.0.2'
+implementation 'com.yomahub:roguemap:1.1.0'
 ```
 
 ## 结构选型速查
