@@ -456,6 +456,7 @@ map.checkpoint();  // 强制持久化索引，确保崩溃恢复
 
 ## 下一步
 
-- [运维指南](./operations.md) - checkpoint 和监控
-- [持久化](./persistence.md) - 数据持久化机制
-- [最佳实践](./best-practices.md) - 更多使用建议
+- [自动检查点](./auto-checkpoint.md) — checkpoint 详解
+- [监控指标](./monitoring.md) — 监控和维护
+- [持久化](./persistence.md) — 数据持久化机制
+- [最佳实践](./best-practices.md) — 更多使用建议

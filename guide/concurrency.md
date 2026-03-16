@@ -329,6 +329,6 @@ System.out.println("Duration: " + duration + " ms");
 
 ## 下一步
 
-- [持久化](./persistence.md) - 数据持久化机制
-- [配置选项](./configuration.md) - 详细配置说明
-- [最佳实践](./best-practices.md) - 使用建议
+- [事务](./transaction.md) — 多操作原子提交
+- [持久化](./persistence.md) — 数据持久化机制
+- [配置选项](./configuration.md) — 详细配置说明

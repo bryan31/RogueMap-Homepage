@@ -401,6 +401,6 @@ public class UnsafeCodec<T> implements Codec<T> {
 
 ## 下一步
 
-- [内存管理](./memory-management.md) - 了解内存分配机制
-- [配置选项](./configuration.md) - 详细配置说明
-- [最佳实践](./best-practices.md) - 使用建议
+- [内存管理](./memory-management.md) — 了解内存分配机制
+- [配置选项](./configuration.md) — 详细配置说明
+- [最佳实践](./best-practices.md) — 使用建议

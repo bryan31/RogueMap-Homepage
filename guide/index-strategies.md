@@ -465,6 +465,6 @@ RogueMap<String, Long> counters = RogueMap.<String, Long>mmap()
 
 ## 下一步
 
-- [编解码器](./codecs.md) - 自定义数据序列化
-- [并发控制](./concurrency.md) - 深入了解并发机制
-- [配置选项](./configuration.md) - 详细配置说明
+- [编解码器](./codecs.md) — 自定义数据序列化
+- [并发控制](./concurrency.md) — 深入了解并发机制
+- [配置选项](./configuration.md) — 详细配置说明

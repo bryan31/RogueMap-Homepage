@@ -201,5 +201,6 @@ map.close();
 ## 下一步
 
 - [索引策略](./index-strategies.md) - 选择合适的索引
-- [运维指南](./operations.md) - 自动扩容和监控
-- [最佳实践](./best-practices.md) - 使用建议
+- [自动扩容](./auto-expand.md) — 按需增长文件空间
+- [监控指标](./monitoring.md) — 监控和维护
+- [最佳实践](./best-practices.md) — 使用建议

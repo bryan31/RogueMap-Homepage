@@ -267,6 +267,6 @@ System.out.println("Heap used: " + heapUsed / 1024 / 1024 + " MB");
 
 ## 下一步
 
-- [并发控制](./concurrency.md) - 深入了解并发机制
-- [配置选项](./configuration.md) - 详细配置说明
-- [最佳实践](./best-practices.md) - 使用建议
+- [并发控制](./concurrency.md) — 深入了解并发机制
+- [配置选项](./configuration.md) — 详细配置说明
+- [最佳实践](./best-practices.md) — 使用建议

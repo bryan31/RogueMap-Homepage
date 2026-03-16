@@ -36,10 +36,10 @@ export default defineConfig({
           text: '开始',
           items: [
             { text: '上手路线（10 分钟）', link: '/guide/quick-start-path' },
-            { text: '功能矩阵', link: '/guide/feature-matrix' },
             { text: '介绍', link: '/guide/introduction' },
             { text: '快速开始', link: '/guide/getting-started' },
-            { text: '为什么选择 RogueMap', link: '/guide/why-roguemap' }
+            { text: '为什么选择 RogueMap', link: '/guide/why-roguemap' },
+            { text: '功能矩阵', link: '/guide/feature-matrix' }
           ]
         },
         {
@@ -57,18 +57,27 @@ export default defineConfig({
             { text: '存储模式', link: '/guide/storage-modes' },
             { text: '索引策略', link: '/guide/index-strategies' },
             { text: '编解码器', link: '/guide/codecs' },
-            { text: '内存管理', link: '/guide/memory-management' }
+            { text: 'TTL 数据过期', link: '/guide/ttl' },
+            { text: '并发控制', link: '/guide/concurrency' }
           ]
         },
         {
-          text: '高级用法',
+          text: '运维与管理',
           items: [
-            { text: '并发控制', link: '/guide/concurrency' },
-            { text: '事务', link: '/guide/transaction' },
-            { text: '持久化', link: '/guide/persistence' },
-            { text: '运维指南', link: '/guide/operations' },
+            { text: '持久化与崩溃恢复', link: '/guide/persistence' },
+            { text: '检查点与自动检查点', link: '/guide/auto-checkpoint' },
+            { text: '自动扩容', link: '/guide/auto-expand' },
+            { text: '空间回收', link: '/guide/compact' },
+            { text: '监控指标', link: '/guide/monitoring' },
+            { text: '事务', link: '/guide/transaction' }
+          ]
+        },
+        {
+          text: '参考',
+          items: [
             { text: '配置选项', link: '/guide/configuration' },
             { text: '最佳实践', link: '/guide/best-practices' },
+            { text: '内存管理', link: '/guide/memory-management' },
             { text: '常见问题与排障', link: '/guide/troubleshooting' }
           ]
         }

@@ -114,14 +114,7 @@ for (Map.Entry<String, Long> entry : batch.entrySet()) {
 }
 ```
 
-### 4. TTL 使用建议
-
-- **合理设置过期时间**：TTL 太短会频繁触发惰性删除，太长会占用存储空间。
-- **配合 `compact()` 使用**：过期数据在被读取时惰性删除，但其存储空间标记为死字节。定期 `compact()` 可回收这部分空间。
-- **单条覆盖默认值**：对特殊数据使用 `put(key, value, ttl, unit)` 覆盖默认 TTL（仅 RogueMap 支持）。
-- **容量规划**：启用 TTL 后，每条数据额外占用 8 字节。
-
-### 5. 开启自动扩容
+### 4. 开启自动扩容
 
 ```java
 RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
@@ -232,12 +225,9 @@ scheduler.scheduleAtFixedRate(() -> {
 }, 1, 5, TimeUnit.MINUTES);
 ```
 
-### 自动检查点配置建议
+### 自动检查点
 
-- **时间间隔模式**：适合写入速率稳定的场景，推荐 1-10 分钟。
-- **操作次数模式**：适合突发写入的场景，推荐每 1000-50000 次操作触发一次。
-- 两种模式可同时开启（OR 逻辑），建议组合使用以覆盖不同负载模式。
-- 自动检查点仅在持久化模式下生效，临时模式自动跳过。
+详细说明请参阅 [检查点与自动检查点](./auto-checkpoint.md)。
 
 ### 2. 保持编解码器一致
 
@@ -387,6 +377,6 @@ System.out.println("Write 1M entries: " + duration + " ms");
 
 ## 下一步
 
-- [性能白皮书](../performance/benchmark) - 性能数据与分析
-- [配置选项](./configuration.md) - 配置说明
-- [运维指南](./operations.md) - 监控和维护
+- [性能白皮书](../performance/benchmark) — 性能数据与分析
+- [配置选项](./configuration.md) — 配置说明
+- [监控指标](./monitoring.md) — 监控和维护

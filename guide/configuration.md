@@ -234,7 +234,7 @@ import com.yomahub.roguemap.index.LowHeapOptions;
 
 #### defaultTTL
 
-设置默认数据过期时间。设置后所有写入的数据自动携带过期时间戳，读取时自动判断并惰性删除过期数据。`TTL = 0` 表示永不过期。
+设置默认数据过期时间。详细说明请参阅 [TTL 数据过期](./ttl.md)。
 
 ```java
 import java.util.concurrent.TimeUnit;
@@ -249,72 +249,29 @@ import java.util.concurrent.TimeUnit;
 .defaultTTL(7, TimeUnit.DAYS)
 ```
 
-**存储格式**：
-```
-[expireTime: 8 字节 (long)][实际序列化数据]
-```
-
-数据写入时，在 mmap 文件中实际数据前额外存储 8 字节的过期时间戳（绝对毫秒值）。读取时自动检查是否过期，过期数据惰性删除。
-
-**适用范围**: 全部四种数据结构的 builder 均支持 `defaultTTL()`。其中 **RogueMap** 提供完整的运行时惰性删除和单条 TTL 覆盖（`put(key, value, ttl, unit)`）。
-
-**示例**：
-
-```java
-RogueMap<String, String> cache = RogueMap.<String, String>mmap()
-    .temporary()
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(StringCodec.INSTANCE)
-    .defaultTTL(10, TimeUnit.MINUTES)
-    .build();
-
-cache.put("session", "abc123");
-// 10 分钟后 get("session") 返回 null
-```
+**适用范围**: 全部四种数据结构的 builder 均支持。
 
 ## 自动 Checkpoint 配置
 
+详细说明请参阅 [检查点与自动检查点](./auto-checkpoint.md)。
+
 #### autoCheckpoint（按时间间隔）
 
-按固定时间间隔自动执行 checkpoint，将索引和元数据持久化到磁盘。
-
 ```java
-import java.util.concurrent.TimeUnit;
-
 // 每 5 分钟自动 checkpoint
 .autoCheckpoint(5, TimeUnit.MINUTES)
-
-// 每 30 秒自动 checkpoint
-.autoCheckpoint(30, TimeUnit.SECONDS)
 ```
 
 #### autoCheckpoint（按操作次数）
 
-按写操作次数自动执行 checkpoint。
-
 ```java
 // 每 10000 次写操作自动 checkpoint
 .autoCheckpoint(10000)
-
-// 每 1000 次写操作自动 checkpoint
-.autoCheckpoint(1000)
 ```
 
-**两种模式可以同时开启**（OR 逻辑），任一条件满足即触发 checkpoint。使用守护线程池，不影响主线程性能。
+两种模式可以同时开启（OR 逻辑），任一条件满足即触发 checkpoint。
 
-**适用范围**: 全部四种数据结构（RogueMap、RogueList、RogueSet、RogueQueue），仅在持久化模式下有意义。
-
-**示例**：
-
-```java
-RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
-    .persistent("data/counters.db")
-    .keyCodec(StringCodec.INSTANCE)
-    .valueCodec(PrimitiveCodecs.LONG)
-    .autoCheckpoint(5, TimeUnit.MINUTES)  // 每 5 分钟
-    .autoCheckpoint(10000)                // 或每 1 万次操作
-    .build();
-```
+**适用范围**: 全部四种数据结构，仅在持久化模式下有意义。
 
 ## 编解码器配置
 
@@ -393,6 +350,8 @@ RogueMap<String, Document> db = RogueMap.<String, Document>mmap()
 
 ## 下一步
 
-- [最佳实践](./best-practices.md) - 使用建议
-- [运维指南](./operations.md) - 监控和维护
-- [内存管理](./memory-management.md) - 内存管理详解
+- [最佳实践](./best-practices.md) — 使用建议
+- [TTL 数据过期](./ttl.md) — TTL 详细说明
+- [自动检查点](./auto-checkpoint.md) — 检查点详细说明
+- [自动扩容](./auto-expand.md) — 自动扩容详细说明
+- [内存管理](./memory-management.md) — 内存管理详解

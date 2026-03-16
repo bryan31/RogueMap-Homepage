@@ -360,9 +360,7 @@ for (String s : toRemove) {
 3. **分段数选择** - 根据并发程度调整 `segmentCount`
 4. **持久化一致性** - 关闭前调用 `flush()` 确保数据落盘
 
-## 运维与进阶功能
-
-### LowHeapStringSetIndex（超低堆索引）
+## LowHeapStringSetIndex（超低堆索引）
 
 RogueSet 也支持超低堆索引，适用于 String 元素且数量极多的场景：
 
@@ -381,49 +379,12 @@ RogueSet<String> set = RogueSet.<String>mmap()
 `lowHeapIndex()` 仅支持 String 类型元素，且不支持事务。
 :::
 
-### 空间回收
-
-```java
-StorageMetrics metrics = set.getMetrics();
-if (metrics.shouldCompact(0.5)) {
-    set = set.compact(512 * 1024 * 1024L);
-}
-```
-
-### TTL（数据过期）
-
-```java
-RogueSet<String> set = RogueSet.<String>mmap()
-    .persistent("data/set.db")
-    .elementCodec(StringCodec.INSTANCE)
-    .defaultTTL(1, TimeUnit.HOURS)
-    .build();
-```
-
-### 自动检查点
-
-```java
-RogueSet<String> set = RogueSet.<String>mmap()
-    .persistent("data/set.db")
-    .elementCodec(StringCodec.INSTANCE)
-    .autoCheckpoint(5, TimeUnit.MINUTES)
-    .autoCheckpoint(5000)
-    .build();
-```
-
-### 自动扩容
-
-```java
-RogueSet<String> set = RogueSet.<String>mmap()
-    .persistent("data/set.db")
-    .elementCodec(StringCodec.INSTANCE)
-    .autoExpand(true)
-    .expandFactor(2.0)
-    .build();
-```
+更多细节请参阅 [索引策略](./index-strategies.md)。
 
 ## 下一步
 
-- [RogueQueue](./roguequeue.md) - FIFO 队列
-- [并发控制](./concurrency.md) - 深入了解并发机制
-- [运维指南](./operations.md) - 监控和维护
+- [RogueQueue](./roguequeue.md) — FIFO 队列
+- [并发控制](./concurrency.md) — 深入了解并发机制
+- [TTL 数据过期](./ttl.md) — 设置数据自动过期
+- [自动检查点](./auto-checkpoint.md) — 自动持久化保障
+- [空间回收](./compact.md) — 回收碎片空间
