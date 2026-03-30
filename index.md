@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "RogueMap"
-  text: "为 JVM 打造的嵌入式持久化数据结构"
-  tagline: "四种数据结构，低 GC 压力，支持持久化、事务、TTL 过期、自动扩容、自动检查点与崩溃恢复。"
+  text: "Java 嵌入式存储引擎 + AI 记忆层"
+  tagline: "基于 mmap 的堆外数据结构与 RogueMemory 混合检索，突破 JVM 内存墙，让 Java 应用拥有持久化与 AI 智能记忆能力。"
   image:
     light: /logo-in-light.svg
     dark: /logo-in-dark.svg
@@ -23,16 +23,16 @@ hero:
 
 features:
   - icon: 🧩
-    title: 四种结构，一套风格
-    details: "RogueMap、RogueList、RogueSet、RogueQueue 全部采用统一 Builder 与运维能力。"
+    title: 嵌入式存储引擎
+    details: "RogueMap、RogueList、RogueSet、RogueQueue 四种堆外数据结构，统一 Builder 风格，支持持久化、事务、TTL、自动检查点与崩溃恢复。"
 
-  - icon: 💽
-    title: 数据可落盘可恢复
-    details: "`persistent(path)` 支持重启恢复，`checkpoint()` 与 `autoCheckpoint()` 可缩小崩溃丢失窗口。"
+  - icon: 🧠
+    title: RogueMemory AI 记忆层
+    details: "内置向量 ANN + BM25 关键词混合检索，支持 OpenAI、Ollama 等主流 Embedding 服务，无需外部向量数据库或搜索引擎。"
 
   - icon: ⚙️
     title: 高并发与大容量
-    details: "分段索引、乐观读、自动扩容、超低堆 LowHeap 索引，适合大数据量与多线程场景。"
+    details: "分段索引、乐观读、自动扩容、超低堆 LowHeap 索引（堆内存再降 99%），数据容量可达 TB 级。"
 
   - icon: 📈
     title: 运行可观测
@@ -44,14 +44,22 @@ features:
 ### Maven 依赖（1.1.0）
 
 ```xml
+<!-- 核心堆外数据结构 -->
 <dependency>
     <groupId>com.yomahub</groupId>
-    <artifactId>roguemap</artifactId>
+    <artifactId>roguemap-core</artifactId>
+    <version>1.1.0</version>
+</dependency>
+
+<!-- AI 记忆层（自动传递依赖 roguemap-embedding） -->
+<dependency>
+    <groupId>com.yomahub</groupId>
+    <artifactId>roguemap-memory</artifactId>
     <version>1.1.0</version>
 </dependency>
 ```
 
-### 最小可运行示例
+### 数据结构 — 键值存储
 
 ```java
 try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
@@ -60,9 +68,34 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
         .valueCodec(PrimitiveCodecs.LONG)
         .build()) {
     map.put("alice", 100L);
-    System.out.println(map.get("alice"));
+    System.out.println(map.get("alice")); // 100
 }
 ```
+
+### AI 记忆层 — RogueMemory
+
+```java
+RogueMemory mem = RogueMemory.mmap()
+    .persistent("data/mem")
+    .searchMode(SearchMode.HYBRID)          // 向量 + 关键词混合检索
+    .embeddingProvider(new UniversalEmbeddingProvider(apiKey))
+    .build();
+
+// 存入记忆
+mem.add("用户偏好深色模式");
+
+// 语义检索
+List<MemoryResult> results = mem.search("用户界面偏好", 5);
+
+mem.close();
+```
+
+## 模块说明
+
+| 模块 | 说明 |
+|---|---|
+| `roguemap-core` | 核心堆外存储 — RogueMap、RogueList、RogueSet、RogueQueue |
+| `roguemap-memory` | AI 记忆层，向量 + BM25 混合检索，基于 mmap 持久化 |
 
 ## 结构选型
 
@@ -72,10 +105,12 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
 | `RogueList<E>` | 顺序数据、时间序列 | `addLast/get/removeLast` |
 | `RogueSet<E>` | 去重、标签、黑名单 | `add/contains/remove` |
 | `RogueQueue<E>` | 任务与消息消费 | `offer/poll/peek` |
+| `RogueMemory` | AI Agent 记忆、RAG、语义搜索 | `add/search/delete` |
 
 ## 推荐阅读路径
 
 1. [上手路线（10 分钟）](/guide/quick-start-path)
 2. [快速开始](/guide/getting-started)
-3. [配置选项](/guide/configuration)
-4. [常见问题与排障](/guide/troubleshooting)
+3. [RogueMemory 介绍](/rogue-memory/introduction)
+4. [配置选项](/guide/configuration)
+5. [常见问题与排障](/guide/troubleshooting)

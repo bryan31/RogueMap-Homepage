@@ -2,6 +2,10 @@
 
 `checkpoint()` 用于强制持久化索引到磁盘。调用后，即使进程崩溃（不调用 `close()`），下次打开文件时也能恢复到最近一次 checkpoint 时的状态。
 
+::: info 适用范围
+`checkpoint()` 和 `autoCheckpoint()` **适用于所有四种数据结构**（RogueMap、RogueList、RogueSet、RogueQueue），且仅在持久化模式下生效。
+:::
+
 ## 手动 checkpoint
 
 ```java
@@ -86,8 +90,31 @@ RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
 - 使用守护线程池（`ScheduledExecutorService`），不阻塞业务线程。
 - 操作计数器采用 CAS 原子操作，避免重复触发。
 - 仅在持久化模式下生效；临时模式下自动跳过。
-- 所有四种数据结构均支持。
 :::
+
+## 各数据结构支持情况
+
+### 手动 checkpoint
+
+| 数据结构 | `checkpoint()` | 说明 |
+|---|---|---|
+| RogueMap | ✅ | 序列化 Hash 索引 + flush |
+| RogueList | ✅ | 序列化链表索引 + flush |
+| RogueSet | ✅ | 序列化 Set 索引 + flush |
+| RogueQueue | ✅ | 序列化队列元数据（head/tail/size）+ flush |
+
+所有四种数据结构均支持手动 `checkpoint()`，且仅在持久化模式下生效。
+
+### 自动检查点（AutoCheckpoint）
+
+| 数据结构 | `autoCheckpoint(interval, TimeUnit)` | `autoCheckpoint(count)` | 触发写入操作 |
+|---|---|---|---|
+| RogueMap | ✅ | ✅ | `put()`、`remove()` |
+| RogueList | ✅ | ✅ | `addFirst()`、`addLast()`、`removeFirst()`、`removeLast()` |
+| RogueSet | ✅ | ✅ | `add()`、`remove()` |
+| RogueQueue | ✅ | ✅ | `offer()`、`poll()`（仅成功时计数） |
+
+所有四种数据结构均支持自动检查点，两种触发模式可同时开启（OR 逻辑）。
 
 ## checkpoint vs flush vs close
 

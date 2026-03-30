@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: "RogueMap",
-  description: "高性能的 Java 堆外内存和持久化键值存储引擎",
+  description: "Java 嵌入式存储引擎 — 堆外数据结构 + RogueMemory AI 记忆层",
   lang: 'zh-CN',
 
   head: [
@@ -18,7 +18,8 @@ export default defineConfig({
 
     nav: [
       { text: '首页', link: '/' },
-      { text: '指南', link: '/guide/introduction' },
+      { text: 'RogueMap 指南', link: '/guide/introduction' },
+      { text: 'RogueMemory 指南', link: '/rogue-memory/introduction' },
       { text: '性能白皮书', link: '/performance/benchmark' },
       {
         text: '链接',
@@ -31,6 +32,23 @@ export default defineConfig({
     ],
 
     sidebar: {
+      '/rogue-memory/': [
+        {
+          text: 'RogueMemory 指南',
+          items: [
+            { text: '介绍', link: '/rogue-memory/introduction' },
+            { text: '快速开始', link: '/rogue-memory/quick-start' },
+            { text: '检索模式', link: '/rogue-memory/search-modes' },
+            { text: '数据操作', link: '/rogue-memory/data-operations' },
+            { text: '元数据与命名空间', link: '/rogue-memory/metadata-namespace' },
+            { text: 'Embedding 服务配置', link: '/rogue-memory/embedding-config' },
+            { text: '检查点与自动检查点', link: '/rogue-memory/auto-checkpoint' },
+            { text: '自动扩容', link: '/rogue-memory/auto-expand' },
+            { text: '持久化与运维', link: '/rogue-memory/persistence' },
+            { text: '存储结构与性能', link: '/rogue-memory/storage-and-performance' }
+          ]
+        }
+      ],
       '/guide/': [
         {
           text: '开始',

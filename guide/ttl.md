@@ -2,6 +2,10 @@
 
 RogueMap 支持为数据设置过期时间（Time-To-Live），过期后自动失效。无需外部缓存组件即可实现数据自动淘汰。
 
+::: info 适用范围
+TTL 功能**仅适用于 RogueMap**。RogueList、RogueSet、RogueQueue 的 `defaultTTL()` 构建参数为预留接口，尚未实际生效。
+:::
+
 ## 基本用法
 
 ### 设置默认 TTL
@@ -74,14 +78,19 @@ cache.get("key");
 
 ## 各数据结构支持情况
 
+::: warning 仅 RogueMap 完整支持 TTL
+TTL 功能目前**仅在 RogueMap 中完整实现**。RogueList、RogueSet、RogueQueue 的 `defaultTTL()` 构建参数为预留接口，设置后不会实际生效。
+:::
+
 | 能力 | RogueMap | RogueList | RogueSet | RogueQueue |
 |---|---|---|---|---|
-| `defaultTTL()` 构建参数 | ✅ | ✅ | ✅ | ✅ |
-| `get()` 惰性删除 | ✅ | — | — | — |
+| `defaultTTL()` 构建参数 | ✅ 可用 | ⚠️ 预留接口 | ⚠️ 预留接口 | ⚠️ 预留接口 |
+| `get()` / `containsKey()` 惰性删除 | ✅ | — | — | — |
 | `put(key, value, ttl, unit)` 单条覆盖 | ✅ | ❌ | ❌ | ❌ |
+| `forEach()` 跳过过期数据 | ✅ | — | — | — |
 
-- **RogueMap** 提供完整的运行时 TTL 支持：`get()` 自动惰性删除过期数据，`put(key, value, ttl, unit)` 可为单条数据指定独立的过期时间。
-- 其他数据结构（RogueList、RogueSet、RogueQueue）支持 `defaultTTL()` 构建参数，TTL 时间戳会写入存储。
+- **RogueMap**：完整支持。`get()` 自动惰性删除过期数据，`put(key, value, ttl, unit)` 可为单条数据指定独立过期时间，`containsKey()` 对过期数据返回 `false`，`forEach()` 自动跳过过期条目。
+- **RogueList / RogueSet / RogueQueue**：`defaultTTL()` 构建参数为预留接口（Builder 方法已定义但内部未接入 TTL 逻辑），设置后不会实际生效，请勿依赖。
 
 ## 容量规划
 
@@ -106,7 +115,7 @@ if (metrics.shouldCompact(0.5)) {  // 碎片率 > 50%
 ## 最佳实践
 
 1. **合理设置过期时间** — TTL 太短会频繁触发惰性删除，太长会占用存储空间。
-2. **单条覆盖默认值** — 对特殊数据使用 `put(key, value, ttl, unit)` 覆盖默认 TTL（仅 RogueMap 支持）。
+2. **单条覆盖默认值** — 对特殊数据使用 `put(key, value, ttl, unit)` 覆盖默认 TTL。
 3. **配合 compact 使用** — 定期 compact 回收过期数据占用的空间。
 4. **容量规划** — 启用 TTL 后每条数据额外占用 8 字节，大数据量场景需纳入估算。
 

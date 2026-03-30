@@ -2,6 +2,21 @@
 
 RogueMap 支持自动扩容功能，当文件空间不足时自动按倍数扩大文件，无需重新创建实例。
 
+::: info 适用范围
+自动扩容**适用于所有四种数据结构**（RogueMap、RogueList、RogueSet、RogueQueue），且仅在持久化模式下生效。底层共享同一个 `MmapAllocator`，扩容机制对所有数据结构一致。
+:::
+
+## 各数据结构支持情况
+
+| 数据结构 | `autoExpand()` | `expandFactor()` | `maxFileSize()` |
+|---|---|---|---|
+| RogueMap | ✅ | ✅ | ✅ |
+| RogueList | ✅ | ✅ | ✅ |
+| RogueSet | ✅ | ✅ | ✅ |
+| RogueQueue | ✅ | ✅ | ✅ |
+
+所有数据结构的配置方式完全相同，均在 Builder 链式调用中设置。
+
 ## 启用自动扩容
 
 ```java
@@ -95,6 +110,39 @@ RogueMap<String, byte[]> map = RogueMap.<String, byte[]>mmap()
     .maxFileSize(2L * 1024 * 1024 * 1024)  // 最大 2GB
     .keyCodec(StringCodec.INSTANCE)
     .valueCodec(new BytesCodec())
+    .build();
+```
+
+## 其他数据结构示例
+
+RogueList、RogueSet、RogueQueue 的自动扩容配置方式与 RogueMap 完全一致：
+
+```java
+// RogueList
+RogueList<String> list = RogueList.<String>mmap()
+    .persistent("data/list.db")
+    .allocateSize(64 * 1024 * 1024L)
+    .autoExpand(true)
+    .expandFactor(2.0)
+    .codec(StringCodec.INSTANCE)
+    .build();
+
+// RogueSet
+RogueSet<String> set = RogueSet.<String>mmap()
+    .persistent("data/set.db")
+    .allocateSize(64 * 1024 * 1024L)
+    .autoExpand(true)
+    .expandFactor(2.0)
+    .codec(StringCodec.INSTANCE)
+    .build();
+
+// RogueQueue
+RogueQueue<String> queue = RogueQueue.<String>mmap()
+    .persistent("data/queue.db")
+    .allocateSize(64 * 1024 * 1024L)
+    .autoExpand(true)
+    .expandFactor(2.0)
+    .codec(StringCodec.INSTANCE)
     .build();
 ```
 
