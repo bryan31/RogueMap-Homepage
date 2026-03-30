@@ -41,21 +41,21 @@ features:
 
 ## 2 分钟跑起来
 
-### Maven 依赖（1.1.0）
+### Maven 依赖（1.1.1）
 
 ```xml
 <!-- 核心堆外数据结构 -->
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-core</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 
 <!-- AI 记忆层（自动传递依赖 roguemap-embedding） -->
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-memory</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 

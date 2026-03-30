@@ -1,6 +1,6 @@
 # RogueMemory 介绍
 
-RogueMemory 是 RogueMap 1.1.0 内置的 AI 记忆层，提供向量近似搜索（ANN）与 BM25 关键词检索的混合检索能力，所有数据基于 mmap 持久化存储。
+RogueMemory 是 RogueMap 1.1.1 内置的 AI 记忆层，提供向量近似搜索（ANN）与 BM25 关键词检索的混合检索能力，所有数据基于 mmap 持久化存储。
 
 **无需外部向量数据库或搜索引擎**，开箱即用。
 
@@ -27,7 +27,7 @@ RogueMemory 让你在 Java 应用中直接获得这些能力：
 
 ## 功能边界
 
-当前版本（1.1.0）的 RogueMemory 功能边界：
+当前版本（1.1.1）的 RogueMemory 功能边界：
 
 | 能力 | 状态 | 说明 |
 |---|---|---|
@@ -44,14 +44,14 @@ RogueMemory 让你在 Java 应用中直接获得这些能力：
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-core</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 
 <!-- AI 记忆层（自动传递依赖 roguemap-embedding） -->
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-memory</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
