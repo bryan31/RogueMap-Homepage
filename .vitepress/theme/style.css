@@ -286,6 +286,27 @@
   max-width: 100%;
 }
 
+/* Mobile: hide hero image, fix padding */
+@media (max-width: 768px) {
+  .VPHero .image-container {
+    display: none !important;
+  }
+
+  .VPHero {
+    margin-top: 0 !important;
+    padding-top: 140px !important;
+    padding-bottom: 48px !important;
+  }
+
+  .VPHero .text {
+    font-size: 24px !important;
+  }
+
+  .VPHero .tagline {
+    font-size: 14px !important;
+  }
+}
+
 /* Smooth scroll */
 html {
   scroll-behavior: smooth;
