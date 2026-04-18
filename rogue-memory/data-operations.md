@@ -61,6 +61,14 @@ mem.update(id, "用户强烈偏好深色模式");
 
 更新内容时会自动重新计算向量（在向量模式下）。元数据、命名空间、创建时间等保持不变。
 
+### 带命名空间守卫的更新
+
+```java
+mem.update(id, "user-123", "用户强烈偏好深色模式");
+```
+
+只有当记忆的命名空间与指定的 `"user-123"` 一致时才会更新，命名空间不匹配则静默跳过。适用于多租户场景下防止越权修改。
+
 ---
 
 ## 删除记忆（delete）
@@ -70,6 +78,42 @@ mem.delete(id);
 ```
 
 采用软删除（墓碑标记），空间在 [compact](./persistence.md) 时回收。删除后 `get(id)` 返回 `null`。
+
+### 带命名空间守卫的删除
+
+```java
+mem.delete(id, "user-123");
+```
+
+只有当记忆的命名空间与指定的 `"user-123"` 一致时才会删除，命名空间不匹配则静默跳过。
+
+---
+
+## 按命名空间批量删除（deleteByNamespace）
+
+```java
+mem.deleteByNamespace("user-123");
+```
+
+删除指定命名空间下的**所有记忆**。适用于用户注销、数据清理等场景。内部遍历所有条目并逐个软删除，空间在 [compact](./persistence.md) 时回收。
+
+---
+
+## 判断记忆是否存在（exists）
+
+```java
+boolean exists = mem.exists(id);
+```
+
+比 `get(id) != null` 更高效——不需要读取完整记录，仅检查索引。
+
+### 带命名空间的判断
+
+```java
+boolean exists = mem.exists(id, "user-123");
+```
+
+检查 ID 是否存在**且**属于指定命名空间。
 
 ---
 
@@ -124,10 +168,15 @@ List<MemoryResult> results = mem.search("用户的偏好", 5,
 | 存入 | `add(content)` | 简单存入 |
 | 存入 | `add(content, metadata, namespace)` | 带元数据和命名空间 |
 | 读取 | `get(id)` | 按 ID 获取，返回 `MemoryEntry` |
+| 是否存在 | `exists(id)` | 检查记忆是否存在 |
+| 是否存在 | `exists(id, namespace)` | 检查指定命名空间下的记忆是否存在 |
 | 检索 | `search(query, topK)` | 简单检索 |
 | 检索 | `search(query, topK, options)` | 带过滤的检索 |
 | 更新 | `update(id, newContent)` | 更新内容，自动重算向量 |
+| 更新 | `update(id, namespace, newContent)` | 带命名空间守卫的更新 |
 | 删除 | `delete(id)` | 软删除 |
+| 删除 | `delete(id, namespace)` | 带命名空间守卫的软删除 |
+| 批量删除 | `deleteByNamespace(namespace)` | 删除指定命名空间下所有记忆 |
 
 ## 下一步
 
