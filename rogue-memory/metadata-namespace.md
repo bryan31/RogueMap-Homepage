@@ -39,7 +39,7 @@ mem.add("用户偏好深色模式",
 **检索时按元数据过滤：**
 
 ```java
-// 只返回 source=chat 的记忆
+// 精确匹配：只返回 source=chat 的记忆
 List<MemoryResult> results = mem.search("用户偏好", 5,
     SearchOptions.builder()
         .filter("source", "chat")
@@ -53,7 +53,58 @@ List<MemoryResult> results = mem.search("用户偏好", 5,
         .build());
 ```
 
-过滤是**精确匹配**：key 和 value 都必须完全一致。
+### 高级过滤（Filter）
+
+1.1.3 新增 `Filter` 类，支持更丰富的过滤条件，不再局限于精确匹配。
+
+**可用运算符：**
+
+| 方法 | 说明 | 示例 |
+|---|---|---|
+| `Filter.eq(value)` | 等于 | `Filter.eq("chat")` |
+| `Filter.gt(value)` | 大于（数值比较） | `Filter.gt("3.5")` |
+| `Filter.gte(value)` | 大于等于 | `Filter.gte("100")` |
+| `Filter.lt(value)` | 小于 | `Filter.lt("1000")` |
+| `Filter.lte(value)` | 小于等于 | `Filter.lte("500")` |
+| `Filter.in(v1, v2, ...)` | 在列表中 | `Filter.in("chat", "email")` |
+| `Filter.between(min, max)` | 范围内（含边界） | `Filter.between("1", "100")` |
+
+**使用示例：**
+
+```java
+// 数值过滤：score >= 80
+List<MemoryResult> results = mem.search("高分用户", 10,
+    SearchOptions.builder()
+        .filter("score", Filter.gte("80"))
+        .build());
+
+// 范围过滤：1 <= priority <= 5
+List<MemoryResult> results = mem.search("重要事项", 10,
+    SearchOptions.builder()
+        .filter("priority", Filter.between("1", "5"))
+        .build());
+
+// 多值匹配：type 为 chat 或 email
+List<MemoryResult> results = mem.search("沟通记录", 10,
+    SearchOptions.builder()
+        .filter("type", Filter.in("chat", "email"))
+        .build());
+
+// 同一 key 多条件组合（AND 语义）：score >= 60 且 score <= 100
+List<MemoryResult> results = mem.search("合格记录", 10,
+    SearchOptions.builder()
+        .filter("score", Filter.gte("60"))
+        .filter("score", Filter.lte("100"))
+        .build());
+```
+
+::: tip 精确匹配简写
+`.filter("key", "value")` 等价于 `.filter("key", Filter.eq("value"))`，旧写法完全兼容，无需改动。
+:::
+
+**注意事项：**
+- `gt`、`gte`、`lt`、`lte`、`between` 做数值比较时，会将 metadata 值当作 `double` 解析，解析失败视为不匹配。
+- 同一个 key 可以添加多个 Filter，它们之间是 AND 语义（全部满足才算匹配）。
 
 ### 不需要元数据？
 
@@ -116,7 +167,7 @@ mem.add("一条默认命名空间的记忆");  // 命名空间为 "default"
 |---|---|---|
 | 本质 | 键值对标签 | 逻辑分区 |
 | 一条记忆可以有 | 多个键值对 | 只有一个 |
-| 过滤方式 | 精确匹配（支持 AND） | 精确匹配 |
+| 过滤方式 | 精确匹配 / Filter 高级过滤（支持 AND） | 精确匹配 |
 | 典型用途 | 按类型/来源/状态过滤 | 按用户/业务线隔离 |
 | 不指定时 | 无元数据 | 默认 `"default"` |
 

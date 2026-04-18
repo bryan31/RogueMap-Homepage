@@ -144,7 +144,8 @@ List<MemoryResult> results = mem.search("用户的偏好", 5,
 | 选项 | 方法 | 说明 |
 |---|---|---|
 | 命名空间过滤 | `.namespace("xxx")` | 只搜指定命名空间，null 搜全部 |
-| 元数据过滤 | `.filter("key", "value")` | 按元数据精确匹配过滤，可多次调用（AND 语义） |
+| 元数据精确过滤 | `.filter("key", "value")` | 按元数据精确匹配过滤，可多次调用（AND 语义） |
+| 元数据高级过滤 | `.filter("key", Filter.xxx)` | 使用 Filter 运算符过滤，支持 eq/gt/gte/lt/lte/in/between |
 | RRF 常数 | `.rrfConstant(30)` | HYBRID 模式下的融合常数，默认 60 |
 
 ### MemoryResult 字段

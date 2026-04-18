@@ -1,6 +1,6 @@
 # RogueMemory 介绍
 
-RogueMemory 是 RogueMap 1.1.2 内置的 AI 记忆层，提供向量近似搜索（ANN）与 BM25 关键词检索的混合检索能力，所有数据基于 mmap 持久化存储。
+RogueMemory 是 RogueMap 1.1.3 内置的 AI 记忆层，提供向量近似搜索（ANN）与 BM25 关键词检索的混合检索能力，所有数据基于 mmap 持久化存储。
 
 **无需外部向量数据库或搜索引擎**，开箱即用。
 
@@ -21,13 +21,13 @@ RogueMemory 让你在 Java 应用中直接获得这些能力：
 - **多服务商支持** — 兼容所有实现了 OpenAI `/v1/embeddings` 协议的 Embedding 服务，不限服务商
 - **零外部依赖** — 所有数据基于 mmap 持久化，无需引入向量数据库或搜索引擎
 - **维度自动推断** — 无需手动指定 Embedding 向量维度
-- **元数据过滤** — 为记忆附加键值对标签，检索时按标签过滤
+- **元数据过滤** — 为记忆附加键值对标签，检索时按标签过滤（支持 eq、gt、gte、lt、lte、in、between 等运算符）
 - **命名空间隔离** — 按用户或业务逻辑分区，检索时指定范围
 - **离线可用** — `KEYWORD_ONLY` 模式完全不需要 Embedding API，纯本地 BM25 检索
 
 ## 功能边界
 
-当前版本（1.1.2）的 RogueMemory 功能边界：
+当前版本（1.1.3）的 RogueMemory 功能边界：
 
 | 能力 | 状态 | 说明 |
 |---|---|---|
@@ -36,6 +36,7 @@ RogueMemory 让你在 Java 应用中直接获得这些能力：
 | 手动检查点 | 已支持 | `checkpoint()` 手动刷盘 |
 | 自动检查点 | 已支持 | `autoCheckpoint(interval, TimeUnit)` 和 `autoCheckpoint(count)` 两种模式 |
 | 命名空间守卫操作 | 已支持 | `delete(id, ns)`、`update(id, ns, content)`、`deleteByNamespace(ns)`、`exists(id, ns)` |
+| 元数据高级过滤 | 已支持 | `Filter.eq/gt/gte/lt/lte/in/between`，支持同一 key 多条件组合 |
 | 存在性检查 | 已支持 | `exists(id)` 高效判断记忆是否存在，无需读取完整记录 |
 | TTL 数据过期 | 未支持 | 存储层已预留 `expireTime` 字段，公开 API 尚未暴露 |
 
@@ -46,14 +47,14 @@ RogueMemory 让你在 Java 应用中直接获得这些能力：
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-core</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 </dependency>
 
 <!-- AI 记忆层（自动传递依赖 roguemap-embedding） -->
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-memory</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 </dependency>
 ```
 
