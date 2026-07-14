@@ -78,6 +78,10 @@ RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
     .build();
 ```
 
+::: warning putAll 的计数节奏（1.1.7+）
+批量入口 `putAll` 会把一整批 n 条作为**一次**批量计数记入计数器，累计达到阈值时只触发**至多一次** checkpoint。这意味着实际 checkpoint 频次可能低于阈值隐含的频次——例如阈值 1000、一次性 `putAll` 10000 条，只会触发一次而非十次。如需按真实写条数密集持久化，请在批量操作间手动调用 `checkpoint()`。
+:::
+
 ### 两种模式同时开启
 
 ```java
@@ -109,7 +113,7 @@ RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
 
 | 数据结构 | `autoCheckpoint(interval, TimeUnit)` | `autoCheckpoint(count)` | 触发写入操作 |
 |---|---|---|---|
-| RogueMap | ✅ | ✅ | `put()`、`remove()` |
+| RogueMap | ✅ | ✅ | `put()`、`remove()`、`putAll()`（整批记一次批量计数） |
 | RogueList | ✅ | ✅ | `addFirst()`、`addLast()`、`removeFirst()`、`removeLast()` |
 | RogueSet | ✅ | ✅ | `add()`、`remove()` |
 | RogueQueue | ✅ | ✅ | `offer()`、`poll()`（仅成功时计数） |

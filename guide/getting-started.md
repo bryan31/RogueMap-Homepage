@@ -18,7 +18,7 @@
 <dependency>
     <groupId>com.yomahub</groupId>
     <artifactId>roguemap-core</artifactId>
-    <version>1.1.3</version>
+    <version>1.1.7</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@
 在你的 `build.gradle` 中添加依赖：
 
 ```gradle
-implementation 'com.yomahub:roguemap-core:1.1.3'
+implementation 'com.yomahub:roguemap-core:1.1.7'
 ```
 
 ## 结构选型速查
@@ -201,6 +201,15 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
     // 删除
     map.remove("key1");
 
+    // 批量写入（1.1.7+，语义与 java.util.Map.putAll 一致，不保证跨键原子性）
+    Map<String, Long> batch = new HashMap<>();
+    batch.put("key2", 200L);
+    batch.put("key3", 300L);
+    map.putAll(batch);
+
+    // 批量读取（1.1.7+，结果中不包含未找到或已过期的键）
+    Map<String, Long> found = map.getAll(Arrays.asList("key1", "key2", "key3"));
+
     // 获取大小
     int size = map.size();
 
@@ -208,6 +217,10 @@ try (RogueMap<String, Long> map = RogueMap.<String, Long>mmap()
     map.clear();
 }
 ```
+
+::: tip 批量 API 说明
+`putAll` / `getAll` 是 1.1.7 新增的批量 API。`putAll` 支持 TTL 变体 `putAll(map, ttl, unit)`，整批条目使用同一过期时间。批量写入不保证跨键原子性——需要原子多键写入时请使用 [事务](./transaction.md)。
+:::
 
 ## 下一步
 

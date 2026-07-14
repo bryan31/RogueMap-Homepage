@@ -101,18 +101,27 @@ RogueMap<Long, Long> idMap = RogueMap.<Long, Long>mmap()
 
 ### 3. 批量操作
 
+1.1.7 起 RogueMap 提供 `putAll` / `getAll` 批量 API：
+
 ```java
 // 批量写入
 Map<String, Long> batch = new HashMap<>();
 for (int i = 0; i < 10000; i++) {
     batch.put("key" + i, (long) i);
 }
+map.putAll(batch);
 
-// 一次性提交
-for (Map.Entry<String, Long> entry : batch.entrySet()) {
-    map.put(entry.getKey(), entry.getValue());
-}
+// 批量写入并指定 TTL（整批使用同一过期时间）
+map.putAll(batch, 30, TimeUnit.MINUTES);
+
+// 批量读取（结果中不包含未找到或已过期的键）
+Map<String, Long> found = map.getAll(keys);
 ```
+
+使用时注意两点：
+
+- **不保证跨键原子性**：语义与 `java.util.Map.putAll` 一致，单个键的更新各自原子，抛出异常时部分条目可能已写入。需要原子多键写入时请使用 `beginTransaction()`。
+- **吞吐与循环 `put` 相当**：分段索引模式下按段分组、每段仅加一次写锁，但实测吞吐与循环 `put` 基本持平。它的价值在于 API 便利性，以及一次大批次只触发一次自动 checkpoint 计数（见 [检查点与自动检查点](./auto-checkpoint.md)）。
 
 ### 4. 开启自动扩容
 

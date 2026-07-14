@@ -14,6 +14,7 @@
 | 显式检查点 `checkpoint()` | ✅ | ✅ | ✅ | ❌（链表队列由 `offer/poll` 自动快照） |
 | 空间压缩 `compact()` | ✅ | ✅ | ✅ | ✅（仅链表队列） |
 | 事务 | ✅（仅 `SegmentedHashIndex`） | ❌ | ❌ | ❌ |
+| 批量操作 `putAll()`/`getAll()` | ✅（1.1.7+，不保证跨键原子性） | ❌ | ❌ | ❌ |
 | `defaultTTL()` 数据过期 | ✅ | ✅ | ✅ | ✅ |
 | `autoCheckpoint()` 自动检查点 | ✅ | ✅ | ✅ | ✅ |
 | `lowHeapIndex()` 超低堆索引 | ✅（仅 String 键） | ❌ | ✅（仅 String 元素） | ❌ |

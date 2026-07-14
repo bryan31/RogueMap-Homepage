@@ -191,26 +191,24 @@ processValue(value);
 
 ### 4. 批量操作
 
+1.1.7 起可直接使用 `getAll` / `putAll` 批量 API：
+
 ```java
-// 批量读取
+// 批量读取（结果中不包含未找到或已过期的键）
 List<String> keys = Arrays.asList("key1", "key2", "key3");
-Map<String, Long> results = new HashMap<>();
-for (String key : keys) {
-    Long value = map.get(key);
-    if (value != null) {
-        results.put(key, value);
-    }
-}
+Map<String, Long> results = map.getAll(keys);
 
 // 批量写入
 Map<String, Long> updates = new HashMap<>();
 updates.put("key1", 100L);
 updates.put("key2", 200L);
 updates.put("key3", 300L);
-for (Map.Entry<String, Long> entry : updates.entrySet()) {
-    map.put(entry.getKey(), entry.getValue());
-}
+map.putAll(updates);
 ```
+
+::: warning 批量写入不保证跨键原子性
+`putAll` 语义与 `java.util.Map.putAll` 一致：单个键的更新各自原子，但并发读写可与整批操作交错，其他线程可能观察到"写了一半"的中间状态。需要原子多键写入时请使用 [事务](./transaction.md)。
+:::
 
 ## 并发陷阱
 

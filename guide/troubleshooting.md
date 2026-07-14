@@ -97,6 +97,12 @@ map.forEach((key, value) -> {
 });
 ```
 
+如果键集合已知，1.1.7 起可用 `getAll(keys)` 批量读取：
+
+```java
+Map<String, Long> found = map.getAll(Arrays.asList("key1", "key2", "key3"));
+```
+
 ## 6. compact() 后旧实例报错
 
 ### 现象
