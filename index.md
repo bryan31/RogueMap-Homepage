@@ -22,20 +22,16 @@ hero:
       link: https://github.com/bryan31/RogueMap
 
 features:
-  - icon: 🧩
-    title: 嵌入式存储引擎
+  - title: 嵌入式存储引擎
     details: "RogueMap、RogueList、RogueSet、RogueQueue 四种堆外数据结构，统一 Builder 风格，支持持久化、事务、TTL、自动检查点与崩溃恢复。"
 
-  - icon: 🧠
-    title: RogueMemory AI 记忆层
+  - title: RogueMemory AI 记忆层
     details: "内置向量 ANN + BM25 关键词混合检索，支持 OpenAI、Ollama 等主流 Embedding 服务，无需外部向量数据库或搜索引擎。"
 
-  - icon: ⚙️
-    title: 高并发与大容量
+  - title: 高并发与大容量
     details: "分段索引、乐观读、自动扩容、超低堆 LowHeap 索引（堆内存再降 99%），数据容量可达 TB 级。"
 
-  - icon: 📈
-    title: 运行可观测
+  - title: 运行可观测
     details: "内置 `StorageMetrics`，可监控使用量、碎片率、条目数并按阈值触发 compact。支持 TTL 数据自动过期。"
 ---
 

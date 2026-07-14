@@ -7,7 +7,7 @@ export default defineConfig({
 
   head: [
     ['link', { rel: 'icon', href: '/logo-in-dark.svg' }],
-    ['meta', { name: 'theme-color', content: '#0f766e' }]
+    ['meta', { name: 'theme-color', content: '#3451b2' }]
   ],
 
   themeConfig: {
