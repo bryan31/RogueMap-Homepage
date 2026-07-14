@@ -5,3 +5,5 @@ node_modules/
 *.log
 .vitepress/dist.zip
 .idea/
+.claude
+.agent
