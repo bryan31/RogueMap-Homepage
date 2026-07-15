@@ -8,14 +8,17 @@ import {
   Gauge
 } from '@lucide/vue'
 
-const { frontmatter } = useData()
+const { frontmatter, lang } = useData()
 
 const featureIcons = [Database, BrainCircuit, Gauge, ChartNoAxesCombined]
 const features = computed(() => frontmatter.value.features ?? [])
+const sectionLabel = computed(() =>
+  lang.value.startsWith('zh') ? '核心能力' : 'Core capabilities'
+)
 </script>
 
 <template>
-  <section v-if="features.length" class="RogueHomeFeatures" aria-label="核心能力">
+  <section v-if="features.length" class="RogueHomeFeatures" :aria-label="sectionLabel">
     <div class="RogueHomeFeatures-grid">
       <article
         v-for="(feature, index) in features"

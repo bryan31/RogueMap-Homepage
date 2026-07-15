@@ -6,7 +6,8 @@
   "scripts": {
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "docs:preview": "vitepress preview",
+    "docs:check-locales": "node scripts/check-locales.mjs"
   },
   "devDependencies": {
     "@lucide/vue": "^1.24.0",
