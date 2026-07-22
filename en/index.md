@@ -33,6 +33,10 @@ features:
 
   - title: Built-in Observability
     details: "Use `StorageMetrics` to monitor utilization, fragmentation, and entry counts, trigger compaction at defined thresholds, and track automatic TTL expiration."
+
+  - title: AI Skill — Teach AI to Use RogueMap Right
+    details: "The official Agent Skill “How2useRogueMap” ships source-verified API knowledge and operations references, so AI coding assistants stop guessing. One command to connect Cursor, Claude Code, Codex, and more."
+    link: /en/guide/ai-skill
 ---
 
 ## Run it in 2 minutes
@@ -102,6 +106,16 @@ mem.close();
 | `RogueSet<E>` | Deduplication, tags, blacklists | `add/contains/remove` |
 | `RogueQueue<E>` | Task and message consumption | `offer/poll/peek` |
 | `RogueMemory` | AI Agent memory, RAG, semantic search | `add/search/delete` |
+
+## Teach AI to use RogueMap correctly
+
+The official Agent Skill "[How2useRogueMap](/en/guide/ai-skill)" bundles source-verified API knowledge and reference docs, so AI coding assistants answer RogueMap questions from the official source instead of guessing. One command to install:
+
+```bash
+npx skills add bryan31/How2useRogueMap
+```
+
+Works with Cursor, Claude Code, Codex, Kimi Code, and other mainstream AI coding assistants. See the [AI Skill introduction](/en/guide/ai-skill) for details.
 
 ## Recommended reading path
 

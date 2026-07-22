@@ -19,6 +19,7 @@ const zhNav = [
   { text: 'RogueMap 指南', link: '/guide/introduction' },
   { text: 'RogueMemory 指南', link: '/rogue-memory/introduction' },
   { text: '性能白皮书', link: '/performance/benchmark' },
+  { text: 'AI Skill', link: '/guide/ai-skill' },
   { ...links, text: '链接' }
 ]
 
@@ -27,6 +28,7 @@ const enNav = [
   { text: 'RogueMap Guide', link: '/en/guide/introduction' },
   { text: 'RogueMemory Guide', link: '/en/rogue-memory/introduction' },
   { text: 'Performance', link: '/en/performance/benchmark' },
+  { text: 'AI Skill', link: '/en/guide/ai-skill' },
   links
 ]
 
@@ -56,7 +58,8 @@ const zhSidebar = {
         { text: '介绍', link: '/guide/introduction' },
         { text: '快速开始', link: '/guide/getting-started' },
         { text: '为什么选择 RogueMap', link: '/guide/why-roguemap' },
-        { text: '功能矩阵', link: '/guide/feature-matrix' }
+        { text: '功能矩阵', link: '/guide/feature-matrix' },
+        { text: 'AI Skill', link: '/guide/ai-skill' }
       ]
     },
     {
@@ -133,7 +136,8 @@ const enSidebar = {
         { text: 'Introduction', link: '/en/guide/introduction' },
         { text: 'Quick Start', link: '/en/guide/getting-started' },
         { text: 'Why RogueMap', link: '/en/guide/why-roguemap' },
-        { text: 'Feature Matrix', link: '/en/guide/feature-matrix' }
+        { text: 'Feature Matrix', link: '/en/guide/feature-matrix' },
+        { text: 'AI Skill', link: '/en/guide/ai-skill' }
       ]
     },
     {

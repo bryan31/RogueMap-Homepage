@@ -33,6 +33,10 @@ features:
 
   - title: 运行可观测
     details: "内置 `StorageMetrics`，可监控使用量、碎片率、条目数并按阈值触发 compact。支持 TTL 数据自动过期。"
+
+  - title: AI Skill — 让 AI 正确使用 RogueMap
+    details: "官方 Agent Skill「How2useRogueMap」，内置源码核验的 API 知识与运维参考，安装后 AI 编程助手不再凭记忆猜测用法。一行命令接入 Cursor、Claude Code、Codex 等。"
+    link: /guide/ai-skill
 ---
 
 ## 2 分钟跑起来
@@ -102,6 +106,16 @@ mem.close();
 | `RogueSet<E>` | 去重、标签、黑名单 | `add/contains/remove` |
 | `RogueQueue<E>` | 任务与消息消费 | `offer/poll/peek` |
 | `RogueMemory` | AI Agent 记忆、RAG、语义搜索 | `add/search/delete` |
+
+## 让 AI 正确使用 RogueMap
+
+官方 Agent Skill「[How2useRogueMap](/guide/ai-skill)」内置经过源码核验的 API 知识与参考文档，让 AI 编程助手基于官方源码回答 RogueMap 问题，而不是凭记忆猜测。一行命令安装：
+
+```bash
+npx skills add bryan31/How2useRogueMap
+```
+
+支持 Cursor、Claude Code、Codex、Kimi Code 等主流 AI 编程助手，详见 [AI Skill 介绍](/guide/ai-skill)。
 
 ## 推荐阅读路径
 

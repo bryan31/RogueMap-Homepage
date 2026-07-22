@@ -122,6 +122,12 @@ body {
   height: 28px;
 }
 
+@media (min-width: 1024px) {
+  .VPNavBar.home .container > .title {
+    width: calc(var(--vp-sidebar-width) - 32px);
+  }
+}
+
 .VPNavBarMenuLink,
 .VPNavBarMenuGroup .button {
   font-size: 14px;
@@ -148,7 +154,34 @@ body {
   padding: calc(var(--vp-nav-height) + 48px) 64px 64px !important;
 }
 
+/* Decorative glow + grid, brand palette only */
+.VPHome .VPHero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(640px 340px at 76% 20%, var(--vp-c-brand-soft), transparent 70%),
+    radial-gradient(560px 320px at 10% 84%, var(--vp-c-brand-soft), transparent 70%);
+  pointer-events: none;
+}
+
+.VPHome .VPHero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--vp-c-divider) 1px, transparent 1px),
+    linear-gradient(90deg, var(--vp-c-divider) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.5;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 26%, black 100%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, transparent 26%, black 100%);
+  pointer-events: none;
+}
+
 .VPHome .VPHero .container {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1.22fr) minmax(320px, 0.78fr);
   align-items: center;
@@ -312,7 +345,7 @@ body {
   border: 1px solid var(--home-border);
   border-radius: 8px;
   background-color: var(--home-surface);
-  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease;
+  transition: border-color 200ms ease, background-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
 }
 
 .RogueHomeFeature:nth-child(1) {
@@ -334,23 +367,46 @@ body {
   grid-column: span 7;
 }
 
+.RogueHomeFeature:nth-child(5) {
+  grid-column: span 12;
+  min-height: 0;
+}
+
 .RogueHomeFeature:hover {
   border-color: var(--vp-c-brand-1);
+  box-shadow: 0 14px 34px rgba(52, 81, 178, 0.1);
   transform: translateY(-2px);
+}
+
+.dark .RogueHomeFeature:hover {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
 }
 
 .RogueHomeFeature:nth-child(1):hover {
   border-color: var(--home-brand-panel);
 }
 
-.RogueHomeFeature-icon {
-  display: block;
-  margin-bottom: 34px;
+.RogueHomeFeature-iconWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 30px;
+  border: 1px solid var(--home-border);
+  border-radius: 12px;
+  background-color: var(--vp-c-brand-soft);
   color: var(--vp-c-brand-1);
 }
 
-.RogueHomeFeature:nth-child(1) .RogueHomeFeature-icon {
+.RogueHomeFeature:nth-child(1) .RogueHomeFeature-iconWrap {
+  border-color: rgba(248, 250, 255, 0.32);
+  background-color: rgba(248, 250, 255, 0.14);
   color: var(--home-brand-panel-text);
+}
+
+.RogueHomeFeature-icon {
+  display: block;
 }
 
 .RogueHomeFeature h2 {
@@ -380,6 +436,27 @@ body {
   color: inherit;
 }
 
+.RogueHomeFeature.is-link {
+  color: var(--home-text-strong);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.RogueHomeFeature-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  color: var(--vp-c-brand-1);
+  font-size: 14px;
+  font-weight: 650;
+  transition: gap 180ms ease;
+}
+
+.RogueHomeFeature.is-link:hover .RogueHomeFeature-more {
+  gap: 10px;
+}
+
 /* Homepage content */
 .VPHome .vp-doc {
   padding-top: 104px;
@@ -405,6 +482,16 @@ body {
   content: none;
 }
 
+.VPHome .vp-doc > div > div > h2::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-top: 18px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--vp-c-brand-1), var(--vp-c-brand-soft));
+}
+
 .VPHome .vp-doc > div > div > h3 {
   margin: 38px 0 18px;
   color: var(--home-text-strong);
@@ -414,10 +501,37 @@ body {
 }
 
 .VPHome .vp-doc div[class*="language-"] {
+  position: relative;
   margin: 0;
+  padding-top: 34px;
   border: 1px solid var(--home-border);
   border-radius: 8px;
   box-shadow: none;
+}
+
+/* macOS-style window dots, brand palette only */
+.VPHome .vp-doc div[class*="language-"]::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--vp-c-brand-1);
+  opacity: 0.6;
+  box-shadow:
+    18px 0 0 var(--vp-c-brand-2),
+    36px 0 0 var(--home-border);
+}
+
+.VPHome .vp-doc div[class*="language-"] .lang {
+  top: 8px;
+}
+
+.VPHome .vp-doc div[class*="language-"] pre {
+  padding-top: 12px;
 }
 
 .VPHome .vp-doc div[class*="language-"] + h3 {
@@ -510,7 +624,7 @@ body {
   border-top-color: var(--vp-c-divider) !important;
 }
 
-@media (min-width: 768px) and (max-width: 899px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .VPNavBar .VPNavBarSearch {
     display: none;
   }
@@ -684,14 +798,15 @@ body {
   .RogueHomeFeature:nth-child(1),
   .RogueHomeFeature:nth-child(2),
   .RogueHomeFeature:nth-child(3),
-  .RogueHomeFeature:nth-child(4) {
+  .RogueHomeFeature:nth-child(4),
+  .RogueHomeFeature:nth-child(5) {
     grid-column: 1;
     min-height: 0;
     padding: 26px;
   }
 
-  .RogueHomeFeature-icon {
-    margin-bottom: 26px;
+  .RogueHomeFeature-iconWrap {
+    margin-bottom: 22px;
   }
 
   .RogueHomeFeature h2 {
@@ -774,6 +889,10 @@ body {
 
   .RogueHomeFeature:nth-child(4) {
     animation-delay: 150ms;
+  }
+
+  .RogueHomeFeature:nth-child(5) {
+    animation-delay: 200ms;
   }
 }
 
