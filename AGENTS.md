@@ -26,8 +26,10 @@ No tests or linting are configured.
 
 - **`.vitepress/config.mts`** — Single source of truth for site structure: nav, sidebar, search, theme, and i18n settings. All routes are defined here.
 - **`.vitepress/theme/index.ts`** — Theme entry; extends VitePress default theme. Register custom Vue components here.
-- **`.vitepress/theme/components/HomeFeatureMatrix.vue`** — Homepage bento feature grid; reads cards from `index.md` frontmatter `features` (supports optional `link` per card), rendered via the `home-features-before` layout slot.
-- **`.vitepress/theme/style.css`** — Custom CSS with brand palette (Slate-Indigo), hero decorations/animations, bento feature cards, and responsive overrides. New styles must reuse the existing `--vp-c-*` / `--home-*` variables — do not introduce new hues.
+- **`.vitepress/theme/Layout.vue`** — Wraps the default layout; provides a View Transitions circular reveal for the light/dark toggle.
+- **`.vitepress/theme/home/`** — Homepage section components (`HomeHero`, `HomeHeap`, `HomeFeatures`, `HomeQuickstart`, `HomeStructures`, `HomeSkill`, `HomePath`), registered globally and composed in order inside `index.md` / `en/index.md`. All homepage copy and benchmark numbers (zh + en) live in `home/content.ts`; code samples stay in the `<HomeQuickstart>` slot of the markdown so Shiki highlights them. `home/memoryField.ts` draws the hero's animated memory-page canvas.
+- **`.vitepress/theme/home/home.css`** — Homepage design tokens (`--rh-*`, light + `.dark`) and shared section/button styles. Colors come from the logo (indigo `#3451B2` / lavender `#A8B1FF`, orange `#F29D00`); reuse these tokens rather than adding new hues. The display face is self-hosted Archivo (`@fontsource-variable/archivo`), so no Google Fonts request is needed.
+- **`.vitepress/theme/style.css`** — Global brand palette for docs pages (`--vp-c-*` / `--home-*`) and nav/footer polish. Keep homepage-only styling out of this file.
 
 ### Content Sections
 
@@ -44,7 +46,7 @@ Content is organized by URL prefix, each with its own sidebar group:
 
 - Sidebar and nav are **manually maintained** in `config.mts` — adding a new page requires creating the `.md` file AND adding its entry to the sidebar config.
 - Content is bilingual: every Chinese page under `guide/`, `rogue-memory/`, `performance/`, `article/` must have an English mirror under `en/`. Run `node scripts/check-locales.mjs` to verify.
-- `index.md` uses VitePress `layout: home` with frontmatter-driven hero/features. Content below the frontmatter renders as homepage body.
+- `index.md` / `en/index.md` use `layout: home` with `markdownStyles: false` and only compose the `Home*` components; edit homepage text in `.vitepress/theme/home/content.ts` (keep zh and en in sync, and bump `VERSION` there plus the Maven snippet in both markdown files on each release).
 - Static assets live in `public/` (logos in light/dark variants).
 - Build output goes to `.vitepress/dist/`.
 

@@ -26,7 +26,9 @@ No tests or linting are configured.
 
 - **`.vitepress/config.mts`** — Single source of truth for site structure: nav, sidebar, search, theme, and i18n settings. All routes are defined here.
 - **`.vitepress/theme/index.ts`** — Theme entry; extends VitePress default theme. Register custom Vue components here.
-- **`.vitepress/theme/style.css`** — Custom CSS with brand palette (Slate-Indigo), hero animations, feature card glass effects, and responsive overrides.
+- **`.vitepress/theme/style.css`** — Global brand palette for docs pages and nav/footer polish.
+- **`.vitepress/theme/Layout.vue`** — Wraps the default layout; circular View Transitions reveal for the light/dark toggle.
+- **`.vitepress/theme/home/`** — Homepage section components, copy/data for zh + en (`content.ts`), the hero canvas (`memoryField.ts`), and homepage tokens (`home.css`, `--rh-*`).
 
 ### Content Sections
 
@@ -42,7 +44,7 @@ Content is organized by URL prefix, each with its own sidebar group:
 ### Key Patterns
 
 - Sidebar and nav are **manually maintained** in `config.mts` — adding a new page requires creating the `.md` file AND adding its entry to the sidebar config.
-- `index.md` uses VitePress `layout: home` with frontmatter-driven hero/features. Content below the frontmatter renders as homepage body.
+- `index.md` / `en/index.md` use `layout: home` + `markdownStyles: false` and only compose `Home*` components; homepage text lives in `.vitepress/theme/home/content.ts`, code samples in the `<HomeQuickstart>` slot.
 - Static assets live in `public/` (logos in light/dark variants).
 - Build output goes to `.vitepress/dist/`.
 

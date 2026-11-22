@@ -1,17 +1,28 @@
-import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import HomeFeatureMatrix from './components/HomeFeatureMatrix.vue'
+import '@fontsource-variable/archivo/wdth.css'
+import Layout from './Layout.vue'
+import HomeHero from './home/HomeHero.vue'
+import HomeHeap from './home/HomeHeap.vue'
+import HomeFeatures from './home/HomeFeatures.vue'
+import HomeQuickstart from './home/HomeQuickstart.vue'
+import HomeStructures from './home/HomeStructures.vue'
+import HomeSkill from './home/HomeSkill.vue'
+import HomePath from './home/HomePath.vue'
 import './style.css'
+import './home/home.css'
 
 export default {
   extends: DefaultTheme,
-  Layout: () => {
-    return h(DefaultTheme.Layout, null, {
-      'home-features-before': () => h(HomeFeatureMatrix)
-    })
-  },
-  enhanceApp({ app, router, siteData }) {
-    // 可以在这里注册自定义组件或添加全局功能
+  Layout,
+  enhanceApp({ app }) {
+    // 首页分区组件，在 index.md / en/index.md 中按顺序组合
+    app.component('HomeHero', HomeHero)
+    app.component('HomeHeap', HomeHeap)
+    app.component('HomeFeatures', HomeFeatures)
+    app.component('HomeQuickstart', HomeQuickstart)
+    app.component('HomeStructures', HomeStructures)
+    app.component('HomeSkill', HomeSkill)
+    app.component('HomePath', HomePath)
   }
 } satisfies Theme

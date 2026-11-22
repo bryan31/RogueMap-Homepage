@@ -1,0 +1,276 @@
+/*
+ * 首页设计令牌与共享样式（仅首页组件使用，文档页不受影响）
+ * 配色取自 Logo：靛蓝墙体 #3451B2 / 暗色 #A8B1FF，破壁橙 #F29D00
+ */
+
+:root {
+  --rh-bg: #f5f6fb;
+  --rh-bg-2: #eceff8;
+  --rh-surface: #ffffff;
+  --rh-ink: #0f1430;
+  --rh-ink-2: #2a3050;
+  --rh-muted: #596181;
+  --rh-line: #dde1ee;
+  --rh-line-strong: #c3c9de;
+
+  --rh-brand: #3451b2;
+  --rh-brand-hover: #2b449a;
+  --rh-brand-ink: #ffffff;
+  --rh-brand-soft: rgba(52, 81, 178, 0.09);
+  --rh-rogue: #f29d00;
+
+  --rh-panel: #141b4d;
+  --rh-panel-deep: #0c1239;
+  --rh-panel-ink: #f3f4ff;
+  --rh-panel-muted: #b8bee6;
+  --rh-panel-line: rgba(255, 255, 255, 0.14);
+
+  --rh-field-dot: rgba(52, 81, 178, 0.17);
+  --rh-field-on: #3451b2;
+  --rh-field-rogue: #f29d00;
+
+  --rh-display: 'Archivo Variable', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --rh-max: 1200px;
+  --rh-gutter: 64px;
+}
+
+.dark {
+  --rh-bg: #070a1a;
+  --rh-bg-2: #0c1129;
+  --rh-surface: #0e1431;
+  --rh-ink: #eef0ff;
+  --rh-ink-2: #c8cdea;
+  --rh-muted: #959dc4;
+  --rh-line: #1d2447;
+  --rh-line-strong: #2d3768;
+
+  --rh-brand: #a8b1ff;
+  --rh-brand-hover: #bcc3ff;
+  --rh-brand-ink: #0a0e26;
+  --rh-brand-soft: rgba(168, 177, 255, 0.1);
+  --rh-rogue: #f6a61e;
+
+  --rh-panel: #3451b2;
+  --rh-panel-deep: #22398a;
+  --rh-panel-ink: #ffffff;
+  --rh-panel-muted: #d5daff;
+  --rh-panel-line: rgba(255, 255, 255, 0.22);
+
+  --rh-field-dot: rgba(168, 177, 255, 0.12);
+  --rh-field-on: #8190ff;
+  --rh-field-rogue: #f29d00;
+}
+
+@media (max-width: 959px) {
+  :root {
+    --rh-gutter: 40px;
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --rh-gutter: 20px;
+  }
+}
+
+/* 首页使用更深的品牌底色；文档页保持原样 */
+html:has(.RhHero) {
+  --vp-c-bg: var(--rh-bg);
+  --home-nav-bg: color-mix(in srgb, var(--rh-bg) 80%, transparent);
+}
+
+.VPHome:has(.RhHero) {
+  margin-bottom: 0 !important;
+  padding-bottom: 128px;
+}
+
+/* ---------- 共享版式 ---------- */
+.RhSection {
+  padding: 136px var(--rh-gutter) 0;
+}
+
+.RhWrap {
+  max-width: var(--rh-max);
+  margin: 0 auto;
+}
+
+.RhHead {
+  max-width: 720px;
+  margin-bottom: 52px;
+}
+
+.RhTitle {
+  margin: 0;
+  border: 0;
+  color: var(--rh-ink);
+  font-family: var(--rh-display);
+  font-size: clamp(30px, 3.5vw, 46px);
+  font-stretch: 110%;
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.RhLead {
+  margin: 18px 0 0;
+  max-width: 38em;
+  color: var(--rh-muted);
+  font-size: 17px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.RhLink {
+  display: inline-flex;
+  color: var(--rh-brand);
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+.RhLink:hover {
+  color: var(--rh-brand-hover);
+  text-decoration-thickness: 2px;
+}
+
+.RhLink:focus-visible {
+  outline: 2px solid var(--rh-brand);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ---------- 按钮 ---------- */
+.RhBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.RhBtn:active {
+  transform: translateY(1px);
+}
+
+.RhBtn:focus-visible {
+  outline: 2px solid var(--rh-brand);
+  outline-offset: 3px;
+}
+
+.RhBtn--brand {
+  background: var(--rh-brand);
+  color: var(--rh-brand-ink);
+  box-shadow: 0 12px 30px -12px color-mix(in srgb, var(--rh-brand) 70%, transparent);
+}
+
+.RhBtn--brand:hover {
+  background: var(--rh-brand-hover);
+  box-shadow:
+    0 16px 34px -12px color-mix(in srgb, var(--rh-brand) 80%, transparent),
+    inset -4px -4px 0 0 var(--rh-rogue);
+}
+
+.RhBtn--alt {
+  border-color: var(--rh-line-strong);
+  background: color-mix(in srgb, var(--rh-surface) 75%, transparent);
+  color: var(--rh-ink);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.RhBtn--alt:hover {
+  border-color: var(--rh-brand);
+  color: var(--rh-brand);
+}
+
+.RhBtn--ghost {
+  padding: 0 14px;
+  color: var(--rh-ink-2);
+}
+
+.RhBtn--ghost:hover {
+  background: var(--rh-brand-soft);
+  color: var(--rh-brand);
+}
+
+.RhBtn-icon {
+  flex: none;
+}
+
+/* ---------- 分段切换 ---------- */
+.RhTabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--rh-bg-2);
+}
+
+.RhTabs-tab {
+  padding: 8px 16px;
+  border-radius: 7px;
+  color: var(--rh-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.RhTabs-tab:hover {
+  color: var(--rh-ink);
+}
+
+.RhTabs-tab.is-active {
+  background: var(--rh-surface);
+  color: var(--rh-ink);
+  box-shadow: 0 1px 2px rgba(15, 20, 48, 0.08), 0 0 0 1px var(--rh-line);
+}
+
+.RhTabs-tab:focus-visible {
+  outline: 2px solid var(--rh-brand);
+  outline-offset: 2px;
+}
+
+@media (max-width: 639px) {
+  .RhSection {
+    padding-top: 96px;
+  }
+
+  .RhHead {
+    margin-bottom: 36px;
+  }
+
+  .RhLead {
+    font-size: 16px;
+  }
+
+  .RhTabs {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  .RhTabs-tab {
+    flex: 1 0 auto;
+    padding: 8px 12px;
+    font-size: 13.5px;
+  }
+
+  .VPHome:has(.RhHero) {
+    padding-bottom: 96px;
+  }
+}
+
+.RhPhrase {
+  display: inline-block;
+}
